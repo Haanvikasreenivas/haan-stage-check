@@ -78,8 +78,9 @@
   }
 }
 
+/* Calendar styles */
 .calendar-day {
-  @apply relative flex items-center justify-center h-10 w-10 rounded-full cursor-pointer transition-colors;
+  @apply relative flex items-center justify-center h-10 w-10 cursor-pointer transition-colors;
 }
 
 .calendar-day-content {
@@ -94,10 +95,24 @@
   @apply text-xs font-medium truncate max-w-full;
 }
 
+/* Animation classes */
 .fade-in {
   animation: fadeIn 0.3s ease-out;
 }
 
+.slide-in {
+  animation: slideIn 0.3s ease-out;
+}
+
+.slide-up {
+  animation: slideUp 0.3s ease-out;
+}
+
+.pulse {
+  animation: pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+}
+
+/* Animation keyframes */
 @keyframes fadeIn {
   from {
     opacity: 0;
@@ -109,8 +124,15 @@
   }
 }
 
-.slide-up {
-  animation: slideUp 0.3s ease-out;
+@keyframes slideIn {
+  from {
+    opacity: 0;
+    transform: translateX(-10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
 }
 
 @keyframes slideUp {
@@ -121,6 +143,15 @@
   to {
     opacity: 1;
     transform: translateY(0);
+  }
+}
+
+@keyframes pulse {
+  0%, 100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.8;
   }
 }
 
@@ -167,5 +198,34 @@
   to {
     transform: scale(1);
     opacity: 1;
+  }
+}
+
+/* Button pulse animation */
+.button-pulse {
+  position: relative;
+}
+
+.button-pulse::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  border-radius: inherit;
+  animation: buttonPulse 1.5s infinite;
+  z-index: -1;
+}
+
+@keyframes buttonPulse {
+  0% {
+    box-shadow: 0 0 0 0 rgba(59, 130, 246, 0.4);
+  }
+  70% {
+    box-shadow: 0 0 0 10px rgba(59, 130, 246, 0);
+  }
+  100% {
+    box-shadow: 0 0 0 0 rgba(59, 130, 246, 0);
   }
 }

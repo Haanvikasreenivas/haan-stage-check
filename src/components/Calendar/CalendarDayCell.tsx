@@ -24,11 +24,11 @@ const CalendarDayCell: React.FC<CalendarDayCellProps> = ({
   
   // Determine day cell classes
   const dayCellClasses = cn(
-    'calendar-day relative flex items-center justify-center h-10 w-10 rounded-full cursor-pointer transition-colors',
+    'calendar-day relative flex items-center justify-center h-10 w-10 cursor-pointer transition-colors',
     {
       'ring-2 ring-primary': isToday,
       'text-gray-400': !isCurrentMonth,
-      'canceled': isCanceled
+      'rounded-full': !isBlocked // Only non-blocked dates are rounded fully
     }
   );
 
@@ -46,7 +46,9 @@ const CalendarDayCell: React.FC<CalendarDayCellProps> = ({
   const dayStyle = isBlocked && project?.color ? {
     backgroundColor: project.color,
     borderRadius: '8px', // Make blocked dates more square with rounded corners
-  } : isCanceled ? { backgroundColor: '#f3f4f6' } : {};
+  } : isCanceled ? { 
+    backgroundColor: '#f3f4f6' 
+  } : {};
   
   const textColorClass = isBlocked && project?.color ? getTextColor(project.color) : '';
 

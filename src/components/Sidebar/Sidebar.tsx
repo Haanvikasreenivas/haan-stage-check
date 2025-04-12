@@ -1,5 +1,5 @@
 
-import React from 'react';
+import React, { useEffect, useRef } from 'react';
 import { format } from 'date-fns';
 import { X } from 'lucide-react';
 import { Button } from '@/components/ui/button';
@@ -28,6 +28,22 @@ const Sidebar: React.FC<SidebarProps> = ({
   onProfileSubmit,
   profile,
 }) => {
+  const sidebarRef = useRef<HTMLDivElement>(null);
+  
+  // Close sidebar when clicking outside
+  useEffect(() => {
+    const handleOutsideClick = (event: MouseEvent) => {
+      if (isOpen && sidebarRef.current && !sidebarRef.current.contains(event.target as Node)) {
+        onClose();
+      }
+    };
+    
+    document.addEventListener('mousedown', handleOutsideClick);
+    return () => {
+      document.removeEventListener('mousedown', handleOutsideClick);
+    };
+  }, [isOpen, onClose]);
+  
   // Group blocked dates by project
   const blockedProjects: { [projectId: string]: { project: Project, dates: Date[] } } = {};
   
@@ -54,71 +70,88 @@ const Sidebar: React.FC<SidebarProps> = ({
     .map(day => day.date);
 
   return (
-    <div className={`fixed inset-y-0 left-0 z-50 w-3/4 max-w-sm bg-white shadow-xl transform ${isOpen ? 'translate-x-0' : '-translate-x-full'} transition-transform duration-300 ease-in-out`}>
-      <div className="flex items-center justify-between p-4 border-b">
-        <h2 className="text-xl font-semibold">Haan Menu</h2>
-        <Button variant="ghost" size="icon" onClick={onClose}>
-          <X className="h-5 w-5" />
-        </Button>
-      </div>
-      
-      <div className="overflow-auto h-full pb-24">
-        {/* Profile Section */}
-        <div className="p-4 border-b">
-          <h3 className="text-lg font-medium mb-2">Profile</h3>
-          <ProfileSection 
-            profile={profile}
-            onSubmit={onProfileSubmit}
-          />
+    <div 
+      className={`fixed inset-0 z-50 bg-black/25 backdrop-blur-sm transition-opacity ${
+        isOpen ? 'opacity-100' : 'opacity-0 pointer-events-none'
+      }`}
+    >
+      <div 
+        ref={sidebarRef}
+        className={`fixed inset-y-0 left-0 z-50 w-3/4 max-w-sm bg-white shadow-xl transform ${
+          isOpen ? 'translate-x-0' : '-translate-x-full'
+        } transition-transform duration-300 ease-in-out`}
+      >
+        <div className="flex items-center justify-between p-4 border-b">
+          <h2 className="text-xl font-semibold">
+            {profile.name ? `Hey ${profile.name.split(' ')[0]}` : 'Haan Menu'}
+          </h2>
+          <Button variant="ghost" size="icon" onClick={onClose}>
+            <X className="h-5 w-5" />
+          </Button>
         </div>
         
-        {/* Blocked Dates Section */}
-        <div className="p-4 border-b">
-          <h3 className="text-lg font-medium mb-2">Blocked Dates</h3>
-          {Object.values(blockedProjects).length > 0 ? (
-            <ul className="space-y-3">
-              {Object.values(blockedProjects).map(({ project, dates }) => (
-                <li key={project.id} className="bg-gray-50 p-3 rounded-md">
-                  <div 
-                    className="font-medium mb-1" 
-                    style={{ color: project.color || 'black' }}
+        <div className="overflow-auto h-full pb-24">
+          {/* Profile Section */}
+          <div className="p-4 border-b">
+            <h3 className="text-lg font-medium mb-2">Profile</h3>
+            <ProfileSection 
+              profile={profile}
+              onSubmit={onProfileSubmit}
+            />
+          </div>
+          
+          {/* Blocked Dates Section */}
+          <div className="p-4 border-b">
+            <h3 className="text-lg font-medium mb-2">Blocked Dates</h3>
+            {Object.values(blockedProjects).length > 0 ? (
+              <ul className="space-y-3">
+                {Object.values(blockedProjects).map(({ project, dates }) => (
+                  <li 
+                    key={project.id} 
+                    className="bg-gray-50 p-3 rounded-md"
+                    style={{ borderLeftColor: project.color, borderLeftWidth: '4px' }}
                   >
-                    {project.name}
-                  </div>
-                  <div className="text-sm text-gray-600">
-                    {dates.map(date => format(date, 'MMM d')).join(', ')}
-                  </div>
-                </li>
-              ))}
-            </ul>
-          ) : (
-            <p className="text-sm text-gray-500">No blocked dates</p>
-          )}
-        </div>
-        
-        {/* Available Dates Section */}
-        <div className="p-4">
-          <h3 className="text-lg font-medium mb-2">Available Dates</h3>
-          {availableDates.length > 0 ? (
-            <div className="flex flex-wrap gap-2">
-              {availableDates.map(date => (
-                <Button 
-                  key={format(date, 'yyyy-MM-dd')} 
-                  variant="outline" 
-                  size="sm"
-                  className="text-xs"
-                  onClick={() => {
-                    onDateSelect(date);
-                    onClose();
-                  }}
-                >
-                  {format(date, 'MMM d')}
-                </Button>
-              ))}
-            </div>
-          ) : (
-            <p className="text-sm text-gray-500">No available dates in the next 30 days</p>
-          )}
+                    <div 
+                      className="font-medium mb-1" 
+                      style={{ color: project.color || 'black' }}
+                    >
+                      {project.name}
+                    </div>
+                    <div className="text-sm text-gray-600">
+                      {dates.map(date => format(date, 'MMM d')).join(', ')}
+                    </div>
+                  </li>
+                ))}
+              </ul>
+            ) : (
+              <p className="text-sm text-gray-500">No blocked dates</p>
+            )}
+          </div>
+          
+          {/* Available Dates Section */}
+          <div className="p-4">
+            <h3 className="text-lg font-medium mb-2">Available Dates</h3>
+            {availableDates.length > 0 ? (
+              <div className="flex flex-wrap gap-2">
+                {availableDates.map(date => (
+                  <Button 
+                    key={format(date, 'yyyy-MM-dd')} 
+                    variant="outline" 
+                    size="sm"
+                    className="text-xs"
+                    onClick={() => {
+                      onDateSelect(date);
+                      onClose();
+                    }}
+                  >
+                    {format(date, 'MMM d')}
+                  </Button>
+                ))}
+              </div>
+            ) : (
+              <p className="text-sm text-gray-500">No available dates in the next 30 days</p>
+            )}
+          </div>
         </div>
       </div>
     </div>

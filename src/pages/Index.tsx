@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from 'react';
 import { startOfToday, format } from 'date-fns';
 import { useToast } from '@/hooks/use-toast';
@@ -5,6 +6,7 @@ import Header from '@/components/Header';
 import Calendar from '@/components/Calendar/Calendar';
 import PaymentsList from '@/components/Dashboard/PaymentsList';
 import AddProjectModal from '@/components/Modals/AddProjectModal';
+import ProjectCardModal from '@/components/Modals/ProjectCardModal';
 import DateOptionsModal from '@/components/Modals/DateOptionsModal';
 import ShootStatusModal from '@/components/Modals/ShootStatusModal';
 import SearchModal from '@/components/Modals/SearchModal';
@@ -34,9 +36,11 @@ const Index = () => {
   const [selectedDate, setSelectedDate] = useState<Date | null>(null);
   const [selectedCalendarDay, setSelectedCalendarDay] = useState<CalendarDay | null>(null);
   const [isAddProjectModalOpen, setIsAddProjectModalOpen] = useState(false);
+  const [isProjectCardModalOpen, setIsProjectCardModalOpen] = useState(false);
   const [isDateOptionsModalOpen, setIsDateOptionsModalOpen] = useState(false);
   const [isSearchModalOpen, setIsSearchModalOpen] = useState(false);
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
+  const [selectedDates, setSelectedDates] = useState<Date[]>([]);
   
   // Welcome animation
   const [showWelcomeAnimation, setShowWelcomeAnimation] = useState(false);
@@ -139,9 +143,67 @@ const Index = () => {
   };
 
   // Handle adding/editing a project
-  const handleAddEditProject = () => {
+  const handleAddEditProject = (useProjectCard: boolean = false) => {
     setIsDateOptionsModalOpen(false);
-    setIsAddProjectModalOpen(true);
+    
+    if (useProjectCard) {
+      setSelectedDates(selectedDate ? [selectedDate] : []);
+      setIsProjectCardModalOpen(true);
+    } else {
+      setIsAddProjectModalOpen(true);
+    }
+  };
+
+  // Handle save project from ProjectCardModal
+  const handleSaveProjectCard = (projectData: {
+    name: string;
+    notes?: string;
+    color: string;
+    selectedDates: Date[];
+    paymentReminder?: {
+      timeValue: number;
+      timeUnit: 'days' | 'weeks' | 'months';
+      notes?: string;
+      dueDate?: Date;
+      dueTime?: string;
+    };
+  }) => {
+    if (projectData.selectedDates.length === 0) return;
+    
+    // Add project for each selected date
+    projectData.selectedDates.forEach(date => {
+      const existingProject = calendarDays.find(
+        day => format(day.date, 'yyyy-MM-dd') === format(date, 'yyyy-MM-dd')
+      )?.project;
+      
+      if (existingProject) {
+        // Edit existing project
+        editProject(date, existingProject.id, {
+          name: projectData.name,
+          notes: projectData.notes,
+          color: projectData.color
+        });
+      } else {
+        // Add new project
+        addProject(date, {
+          name: projectData.name,
+          notes: projectData.notes,
+          color: projectData.color,
+          paymentReminder: projectData.paymentReminder && date === projectData.selectedDates[0] ? {
+            timeValue: 1,
+            timeUnit: 'days',
+            notes: projectData.paymentReminder.notes
+          } : undefined
+        });
+      }
+    });
+    
+    toast({
+      title: "Dates blocked!",
+      description: `${projectData.name} has been added to ${projectData.selectedDates.length} dates.`,
+    });
+    
+    setIsProjectCardModalOpen(false);
   };
 
   // Handle save project
@@ -278,7 +340,7 @@ const Index = () => {
       
       <main className="flex-1 container max-w-4xl mx-auto p-4 md:p-6 space-y-6">
         {profile.name && (
-          <h2 className="text-xl font-semibold text-gray-800 pb-2">
+          <h2 className="text-xl font-semibold text-gray-800 pb-2 slide-in">
             Hey {profile.name.split(' ')[0]}
           </h2>
         )}
@@ -320,11 +382,20 @@ const Index = () => {
         onSave={handleSaveProject}
       />
       
+      <ProjectCardModal
+        isOpen={isProjectCardModalOpen}
+        date={selectedDate}
+        existingProject={selectedCalendarDay?.project}
+        selectedDates={selectedDates}
+        onClose={() => setIsProjectCardModalOpen(false)}
+        onSave={handleSaveProjectCard}
+      />
+      
       <DateOptionsModal
         isOpen={isDateOptionsModalOpen}
         calendarDay={selectedCalendarDay}
         onClose={() => setIsDateOptionsModalOpen(false)}
-        onEditProject={handleAddEditProject}
+        onEditProject={() => handleAddEditProject(true)}
         onCancelProject={handleCancelProject}
         onReblockProject={handleReblockProject}
       />

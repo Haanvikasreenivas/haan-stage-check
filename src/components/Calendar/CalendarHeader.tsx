@@ -16,7 +16,7 @@ const CalendarHeader: React.FC<CalendarHeaderProps> = ({
   onNextMonth,
 }) => {
   return (
-    <div className="flex items-center justify-between mb-4">
+    <div className="flex items-center space-x-4">
       <h2 className="text-xl font-semibold">
         {format(currentMonth, 'MMMM yyyy')}
       </h2>
@@ -25,6 +25,7 @@ const CalendarHeader: React.FC<CalendarHeaderProps> = ({
           variant="ghost" 
           size="icon" 
           onClick={onPreviousMonth}
+          className="h-8 w-8 rounded-full"
         >
           <ChevronLeft className="h-5 w-5" />
         </Button>
@@ -32,6 +33,7 @@ const CalendarHeader: React.FC<CalendarHeaderProps> = ({
           variant="ghost" 
           size="icon" 
           onClick={onNextMonth}
+          className="h-8 w-8 rounded-full"
         >
           <ChevronRight className="h-5 w-5" />
         </Button>
