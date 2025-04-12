@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { startOfToday, format } from 'date-fns';
 import { useToast } from '@/hooks/use-toast';
@@ -10,46 +9,9 @@ import DateOptionsModal from '@/components/Modals/DateOptionsModal';
 import ShootStatusModal from '@/components/Modals/ShootStatusModal';
 import SearchModal from '@/components/Modals/SearchModal';
 import Sidebar from '@/components/Sidebar/Sidebar';
+import WelcomeAnimation from '@/components/WelcomeAnimation';
 import { CalendarDay, ShootStatusReminder, UserProfile } from '@/types';
 import { useCalendarData } from '@/hooks/useCalendarData';
-
-// Welcome animation component
-const WelcomeAnimation = ({ name, onClose }: { name: string, onClose: () => void }) => {
-  useEffect(() => {
-    const timer = setTimeout(onClose, 3000);
-    return () => clearTimeout(timer);
-  }, [onClose]);
-
-  return (
-    <div 
-      className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm"
-      onClick={onClose}
-    >
-      <div className="bg-white rounded-lg p-6 text-center animate-scale-in">
-        <h2 className="text-2xl font-bold mb-4">Hey {name.split(' ')[0]}, welcome to Haan!</h2>
-        <div className="confetti-animation relative h-24">
-          {/* Simplified confetti animation - would be enhanced with actual animation in production */}
-          {Array.from({ length: 20 }).map((_, i) => (
-            <div 
-              key={i}
-              className="absolute rounded-full animate-fall"
-              style={{
-                top: `${Math.random() * -10}%`,
-                left: `${Math.random() * 100}%`,
-                width: `${Math.random() * 10 + 5}px`,
-                height: `${Math.random() * 10 + 5}px`,
-                backgroundColor: `hsl(${Math.random() * 360}, 100%, 75%)`,
-                animationDuration: `${Math.random() * 2 + 1}s`,
-                animationDelay: `${Math.random() * 0.5}s`,
-              }}
-            />
-          ))}
-        </div>
-        <p className="text-gray-600 mt-2">Your personal schedule assistant</p>
-      </div>
-    </div>
-  );
-};
 
 const Index = () => {
   const { toast } = useToast();
@@ -315,6 +277,12 @@ const Index = () => {
       />
       
       <main className="flex-1 container max-w-4xl mx-auto p-4 md:p-6 space-y-6">
+        {profile.name && (
+          <h2 className="text-xl font-semibold text-gray-800 pb-2">
+            Hey {profile.name.split(' ')[0]}
+          </h2>
+        )}
+        
         <Calendar onDateClick={handleDateClick} />
         
         {payments.length > 0 && (

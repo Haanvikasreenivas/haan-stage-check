@@ -36,4 +36,5 @@ export interface UserProfile {
   email?: string;
   phone?: string;
   notes?: string;
+  hasSeenWelcome?: boolean; // Added to track if welcome animation has been shown
 }

@@ -45,6 +45,7 @@ const CalendarDayCell: React.FC<CalendarDayCellProps> = ({
   // Custom style for project color
   const dayStyle = isBlocked && project?.color ? {
     backgroundColor: project.color,
+    borderRadius: '8px', // Make blocked dates more square with rounded corners
   } : isCanceled ? { backgroundColor: '#f3f4f6' } : {};
   
   const textColorClass = isBlocked && project?.color ? getTextColor(project.color) : '';
