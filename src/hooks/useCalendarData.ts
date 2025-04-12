@@ -1,6 +1,6 @@
 
 import { useState, useEffect } from 'react';
-import { CalendarDay, Project, PaymentReminder, ShootStatusReminder } from '@/types';
+import { CalendarDay, Project, PaymentReminder, ShootStatusReminder, UserProfile } from '@/types';
 import { endOfMonth, startOfMonth, eachDayOfInterval, format, addDays, addWeeks, addMonths } from 'date-fns';
 import { v4 as uuidv4 } from 'uuid';
 
@@ -8,18 +8,21 @@ import { v4 as uuidv4 } from 'uuid';
 const PROJECTS_STORAGE_KEY = 'haan-projects';
 const PAYMENTS_STORAGE_KEY = 'haan-payments';
 const REMINDERS_STORAGE_KEY = 'haan-reminders';
+const PROFILE_STORAGE_KEY = 'haan-profile';
 
 export const useCalendarData = (currentMonth: Date) => {
   const [projects, setProjects] = useState<{ [date: string]: Project }>({});
   const [payments, setPayments] = useState<PaymentReminder[]>([]);
   const [reminders, setReminders] = useState<ShootStatusReminder[]>([]);
   const [calendarDays, setCalendarDays] = useState<CalendarDay[]>([]);
+  const [profile, setProfile] = useState<UserProfile>({ name: '' });
 
   // Load data from local storage
   useEffect(() => {
     const storedProjects = localStorage.getItem(PROJECTS_STORAGE_KEY);
     const storedPayments = localStorage.getItem(PAYMENTS_STORAGE_KEY);
     const storedReminders = localStorage.getItem(REMINDERS_STORAGE_KEY);
+    const storedProfile = localStorage.getItem(PROFILE_STORAGE_KEY);
 
     if (storedProjects) {
       setProjects(JSON.parse(storedProjects));
@@ -38,6 +41,10 @@ export const useCalendarData = (currentMonth: Date) => {
         date: new Date(reminder.date)
       })));
     }
+
+    if (storedProfile) {
+      setProfile(JSON.parse(storedProfile));
+    }
   }, []);
 
   // Save data to local storage whenever it changes
@@ -52,6 +59,10 @@ export const useCalendarData = (currentMonth: Date) => {
   useEffect(() => {
     localStorage.setItem(REMINDERS_STORAGE_KEY, JSON.stringify(reminders));
   }, [reminders]);
+
+  useEffect(() => {
+    localStorage.setItem(PROFILE_STORAGE_KEY, JSON.stringify(profile));
+  }, [profile]);
 
   // Generate calendar days for the current month
   useEffect(() => {
@@ -72,10 +83,20 @@ export const useCalendarData = (currentMonth: Date) => {
     setCalendarDays(newCalendarDays);
   }, [currentMonth, projects]);
 
+  // User profile functions
+  const setUserProfile = (newProfile: UserProfile) => {
+    setProfile(newProfile);
+  };
+
+  const getUserProfile = () => {
+    return profile;
+  };
+
   // Add or update a project
   const addProject = (date: Date, projectData: {
     name: string;
     notes?: string;
+    color: string;
     paymentReminder?: {
       timeValue: number;
       timeUnit: 'days' | 'weeks' | 'months';
@@ -89,7 +110,8 @@ export const useCalendarData = (currentMonth: Date) => {
       id: projectId,
       name: projectData.name,
       notes: projectData.notes,
-      status: 'blocked'
+      status: 'blocked',
+      color: projectData.color
     };
 
     setProjects(prev => ({
@@ -129,6 +151,7 @@ export const useCalendarData = (currentMonth: Date) => {
   const editProject = (date: Date, projectId: string, projectData: {
     name: string;
     notes?: string;
+    color?: string;
   }) => {
     const dateStr = format(date, 'yyyy-MM-dd');
     const currentProject = projects[dateStr];
@@ -138,7 +161,8 @@ export const useCalendarData = (currentMonth: Date) => {
     const updatedProject = {
       ...currentProject,
       name: projectData.name,
-      notes: projectData.notes
+      notes: projectData.notes,
+      color: projectData.color || currentProject.color
     };
 
     setProjects(prev => ({
@@ -253,6 +277,8 @@ export const useCalendarData = (currentMonth: Date) => {
     cancelProject,
     reblockProject,
     markPaymentReceived,
-    confirmShootStatus
+    confirmShootStatus,
+    setUserProfile,
+    getUserProfile
   };
 };

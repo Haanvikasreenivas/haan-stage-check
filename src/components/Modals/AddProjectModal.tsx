@@ -16,6 +16,20 @@ import {
   SelectValue 
 } from '@/components/ui/select';
 
+// Project colors
+const PROJECT_COLORS = [
+  '#3B82F6', // Blue
+  '#EF4444', // Red
+  '#10B981', // Green
+  '#F59E0B', // Amber
+  '#8B5CF6', // Violet
+  '#EC4899', // Pink
+  '#14B8A6', // Teal
+  '#F97316', // Orange
+  '#6366F1', // Indigo
+  '#84CC16', // Lime
+];
+
 interface AddProjectModalProps {
   isOpen: boolean;
   date: Date | null;
@@ -23,11 +37,13 @@ interface AddProjectModalProps {
     id: string;
     name: string;
     notes?: string;
+    color?: string;
   };
   onClose: () => void;
   onSave: (project: {
     name: string;
     notes?: string;
+    color: string;
     paymentReminder?: {
       timeValue: number;
       timeUnit: 'days' | 'weeks' | 'months';
@@ -45,6 +61,7 @@ const AddProjectModal: React.FC<AddProjectModalProps> = ({
 }) => {
   const [name, setName] = useState(existingProject?.name || '');
   const [notes, setNotes] = useState(existingProject?.notes || '');
+  const [color, setColor] = useState(existingProject?.color || PROJECT_COLORS[0]);
   const [addPaymentReminder, setAddPaymentReminder] = useState(false);
   const [paymentTimeValue, setPaymentTimeValue] = useState<number>(15);
   const [paymentTimeUnit, setPaymentTimeUnit] = useState<'days' | 'weeks' | 'months'>('days');
@@ -58,6 +75,7 @@ const AddProjectModal: React.FC<AddProjectModalProps> = ({
     const projectData = {
       name: name.trim(),
       notes: notes.trim() || undefined,
+      color,
       paymentReminder: addPaymentReminder ? {
         timeValue: paymentTimeValue,
         timeUnit: paymentTimeUnit,
@@ -72,6 +90,7 @@ const AddProjectModal: React.FC<AddProjectModalProps> = ({
   const resetForm = () => {
     setName('');
     setNotes('');
+    setColor(PROJECT_COLORS[0]);
     setAddPaymentReminder(false);
     setPaymentTimeValue(15);
     setPaymentTimeUnit('days');
@@ -102,6 +121,23 @@ const AddProjectModal: React.FC<AddProjectModalProps> = ({
               className="col-span-3"
               autoFocus
             />
+          </div>
+
+          <div className="space-y-2">
+            <Label htmlFor="project-color">Project Color</Label>
+            <div className="flex flex-wrap gap-2">
+              {PROJECT_COLORS.map((projectColor) => (
+                <button
+                  key={projectColor}
+                  type="button"
+                  className={`w-8 h-8 rounded-full border-2 ${
+                    color === projectColor ? 'border-black' : 'border-transparent'
+                  }`}
+                  style={{ backgroundColor: projectColor }}
+                  onClick={() => setColor(projectColor)}
+                />
+              ))}
+            </div>
           </div>
 
           <div className="space-y-2">

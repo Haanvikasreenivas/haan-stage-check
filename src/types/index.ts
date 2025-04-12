@@ -6,6 +6,7 @@ export interface Project {
   name: string;
   notes?: string;
   status: ProjectStatus;
+  color?: string; // Add color property for projects
 }
 
 export interface CalendarDay {
@@ -28,4 +29,11 @@ export interface ShootStatusReminder {
   projectId: string;
   date: Date;
   responded: boolean;
+}
+
+export interface UserProfile {
+  name: string;
+  email?: string;
+  phone?: string;
+  notes?: string;
 }

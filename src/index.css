@@ -86,25 +86,6 @@
   @apply flex flex-col items-center justify-center w-full h-full;
 }
 
-.calendar-day.blocked {
-  @apply bg-blue-100 hover:bg-blue-200;
-}
-
-.calendar-day.canceled {
-  @apply bg-gray-100 hover:bg-gray-200 relative;
-}
-
-.canceled::after {
-  content: '';
-  position: absolute;
-  top: 50%;
-  left: 0;
-  right: 0;
-  height: 1px;
-  background-color: rgba(0, 0, 0, 0.2);
-  transform: rotate(-45deg);
-}
-
 .day-indicator {
   @apply text-sm font-medium;
 }
@@ -156,5 +137,35 @@
   to {
     opacity: 1;
     transform: translateY(0);
+  }
+}
+
+/* Welcome animation */
+@keyframes fall {
+  from {
+    transform: translateY(-20vh);
+  }
+  to {
+    transform: translateY(20vh);
+    opacity: 0;
+  }
+}
+
+.animate-fall {
+  animation: fall 2s ease-out forwards;
+}
+
+.animate-scale-in {
+  animation: scaleIn 0.3s ease-out forwards;
+}
+
+@keyframes scaleIn {
+  from {
+    transform: scale(0.9);
+    opacity: 0;
+  }
+  to {
+    transform: scale(1);
+    opacity: 1;
   }
 }
