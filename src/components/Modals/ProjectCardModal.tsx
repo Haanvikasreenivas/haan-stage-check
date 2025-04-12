@@ -14,6 +14,7 @@ import { Textarea } from '@/components/ui/textarea';
 import { Label } from '@/components/ui/label';
 import { Calendar } from '@/components/ui/calendar';
 import { Project } from '@/types';
+import { useToast } from '@/hooks/use-toast';
 
 // Predefined color palette
 const colorPalette = [
@@ -58,6 +59,7 @@ const ProjectCardModal: React.FC<ProjectCardModalProps> = ({
   selectedDates = [],
   onSave,
 }) => {
+  const { toast } = useToast();
   const [name, setName] = useState(existingProject?.name || '');
   const [notes, setNotes] = useState(existingProject?.notes || '');
   const [color, setColor] = useState(existingProject?.color || colorPalette[0]);
@@ -71,25 +73,9 @@ const ProjectCardModal: React.FC<ProjectCardModalProps> = ({
   const [paymentDueTime, setPaymentDueTime] = useState('10:00');
   const [paymentNotes, setPaymentNotes] = useState('');
 
-  const handleDateSelect = (date: Date | undefined) => {
-    if (!date) return;
-    
-    // Check if the date is already selected
-    const isAlreadySelected = selectedDateArray.some(
-      selectedDate => format(selectedDate, 'yyyy-MM-dd') === format(date, 'yyyy-MM-dd')
-    );
-    
-    if (isAlreadySelected) {
-      // Remove the date if already selected
-      setSelectedDateArray(
-        selectedDateArray.filter(
-          selectedDate => format(selectedDate, 'yyyy-MM-dd') !== format(date, 'yyyy-MM-dd')
-        )
-      );
-    } else {
-      // Add the date if not already selected
-      setSelectedDateArray([...selectedDateArray, date]);
-    }
+  const handleDateSelect = (dates: Date[] | undefined) => {
+    if (!dates) return;
+    setSelectedDateArray(dates);
   };
 
   const handleSubmit = () => {
@@ -112,6 +98,14 @@ const ProjectCardModal: React.FC<ProjectCardModalProps> = ({
     };
     
     onSave(projectData);
+    
+    // Show toast with fade out animation
+    toast({
+      title: "Dates blocked!",
+      description: `${name} has been added to ${selectedDateArray.length} dates.`,
+      className: "toast-enter",
+      duration: 2000, // 2 seconds as requested
+    });
   };
 
   if (!date && selectedDateArray.length === 0) return null;
@@ -177,8 +171,8 @@ const ProjectCardModal: React.FC<ProjectCardModalProps> = ({
               <Calendar
                 mode="multiple"
                 selected={selectedDateArray}
-                onSelect={(dates) => setSelectedDateArray(dates || [])}
-                className="w-full"
+                onSelect={handleDateSelect}
+                className="w-full pointer-events-auto"
               />
             </div>
           </div>
@@ -205,6 +199,7 @@ const ProjectCardModal: React.FC<ProjectCardModalProps> = ({
                       selected={paymentDueDate}
                       onSelect={setPaymentDueDate}
                       initialFocus
+                      className="pointer-events-auto"
                     />
                   </div>
                 </div>

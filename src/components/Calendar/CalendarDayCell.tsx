@@ -28,7 +28,6 @@ const CalendarDayCell: React.FC<CalendarDayCellProps> = ({
     {
       'ring-2 ring-primary': isToday,
       'text-gray-400': !isCurrentMonth,
-      'rounded-full': !isBlocked // Only non-blocked dates are rounded fully
     }
   );
 
@@ -45,7 +44,7 @@ const CalendarDayCell: React.FC<CalendarDayCellProps> = ({
   // Custom style for project color
   const dayStyle = isBlocked && project?.color ? {
     backgroundColor: project.color,
-    borderRadius: '8px', // Make blocked dates more square with rounded corners
+    borderRadius: '8px', // Make blocked dates rounded with 8px corners
   } : isCanceled ? { 
     backgroundColor: '#f3f4f6' 
   } : {};

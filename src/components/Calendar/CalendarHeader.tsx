@@ -8,35 +8,49 @@ interface CalendarHeaderProps {
   currentMonth: Date;
   onPreviousMonth: () => void;
   onNextMonth: () => void;
+  userName?: string;
 }
 
 const CalendarHeader: React.FC<CalendarHeaderProps> = ({
   currentMonth,
   onPreviousMonth,
   onNextMonth,
+  userName
 }) => {
+  // Extract first name if available
+  const firstName = userName ? userName.split(' ')[0] : '';
+  
   return (
-    <div className="flex items-center space-x-4">
-      <h2 className="text-xl font-semibold">
-        {format(currentMonth, 'MMMM yyyy')}
-      </h2>
-      <div className="flex space-x-1">
-        <Button 
-          variant="ghost" 
-          size="icon" 
-          onClick={onPreviousMonth}
-          className="h-8 w-8 rounded-full"
-        >
-          <ChevronLeft className="h-5 w-5" />
-        </Button>
-        <Button 
-          variant="ghost" 
-          size="icon" 
-          onClick={onNextMonth}
-          className="h-8 w-8 rounded-full"
-        >
-          <ChevronRight className="h-5 w-5" />
-        </Button>
+    <div className="flex flex-col space-y-2 w-full">
+      {firstName && (
+        <h2 className="text-xl font-semibold slide-in">
+          Hey {firstName}
+        </h2>
+      )}
+      <div className="flex items-center justify-between">
+        <div className="flex items-center space-x-4">
+          <h2 className="text-xl font-semibold">
+            {format(currentMonth, 'MMMM yyyy')}
+          </h2>
+          <div className="flex space-x-1">
+            <Button 
+              variant="ghost" 
+              size="icon" 
+              onClick={onPreviousMonth}
+              className="h-8 w-8 rounded-full"
+            >
+              <ChevronLeft className="h-5 w-5" />
+            </Button>
+            <Button 
+              variant="ghost" 
+              size="icon" 
+              onClick={onNextMonth}
+              className="h-8 w-8 rounded-full"
+            >
+              <ChevronRight className="h-5 w-5" />
+            </Button>
+          </div>
+        </div>
       </div>
     </div>
   );

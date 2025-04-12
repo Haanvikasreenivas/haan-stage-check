@@ -10,9 +10,10 @@ import { Calendar as CalendarIcon } from 'lucide-react';
 
 interface CalendarProps {
   onDateClick: (date: Date) => void;
+  userName?: string;
 }
 
-const Calendar: React.FC<CalendarProps> = ({ onDateClick }) => {
+const Calendar: React.FC<CalendarProps> = ({ onDateClick, userName }) => {
   const [currentMonth, setCurrentMonth] = useState<Date>(startOfToday());
   const { calendarDays } = useCalendarData(currentMonth);
 
@@ -35,6 +36,7 @@ const Calendar: React.FC<CalendarProps> = ({ onDateClick }) => {
           currentMonth={currentMonth}
           onPreviousMonth={goToPreviousMonth}
           onNextMonth={goToNextMonth}
+          userName={userName}
         />
         <Button 
           variant="outline" 

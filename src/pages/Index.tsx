@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { startOfToday, format } from 'date-fns';
 import { useToast } from '@/hooks/use-toast';
@@ -51,6 +50,27 @@ const Index = () => {
 
   // Get user profile
   const profile = getUserProfile();
+
+  // Add event listener to close the sidebar when clicking on the main content
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      // If sidebar is open and the click is not on the sidebar itself
+      if (isSidebarOpen) {
+        const target = event.target as HTMLElement;
+        const isInsideSidebar = target.closest('[data-sidebar="sidebar"]');
+        const isHamburgerButton = target.closest('[data-sidebar="trigger"]');
+        
+        if (!isInsideSidebar && !isHamburgerButton) {
+          setIsSidebarOpen(false);
+        }
+      }
+    };
+
+    document.addEventListener('click', handleClickOutside);
+    return () => {
+      document.removeEventListener('click', handleClickOutside);
+    };
+  }, [isSidebarOpen]);
 
   // Check for reminders that need to be shown
   useEffect(() => {
@@ -185,15 +205,21 @@ const Index = () => {
         });
       } else {
         // Add new project
+        const paymentReminderData = projectData.paymentReminder?.dueDate 
+          ? {
+              timeValue: 1,
+              timeUnit: 'days' as const,
+              notes: projectData.paymentReminder.notes,
+              dueDate: projectData.paymentReminder.dueDate,
+              dueTime: projectData.paymentReminder.dueTime
+            }
+          : undefined;
+        
         addProject(date, {
           name: projectData.name,
           notes: projectData.notes,
           color: projectData.color,
-          paymentReminder: projectData.paymentReminder && date === projectData.selectedDates[0] ? {
-            timeValue: 1,
-            timeUnit: 'days',
-            notes: projectData.paymentReminder.notes
-          } : undefined
+          paymentReminder: date === projectData.selectedDates[0] ? paymentReminderData : undefined
         });
       }
     });
@@ -201,6 +227,7 @@ const Index = () => {
     toast({
       title: "Dates blocked!",
       description: `${projectData.name} has been added to ${projectData.selectedDates.length} dates.`,
+      duration: 2000
     });
     
     setIsProjectCardModalOpen(false);
@@ -215,6 +242,8 @@ const Index = () => {
       timeValue: number;
       timeUnit: 'days' | 'weeks' | 'months';
       notes?: string;
+      dueDate?: Date;
+      dueTime?: string;
     };
   }) => {
     if (!selectedDate) return;
@@ -231,7 +260,8 @@ const Index = () => {
       
       toast({
         title: "Project updated!",
-        description: `${projectData.name} has been updated.`
+        description: `${projectData.name} has been updated.`,
+        duration: 2000
       });
     } else {
       // Add new project
@@ -240,12 +270,14 @@ const Index = () => {
       if (projectData.paymentReminder) {
         toast({
           title: "Date blocked!",
-          description: `${projectData.name} added with payment reminder.`
+          description: `${projectData.name} added with payment reminder.`,
+          duration: 2000
         });
       } else {
         toast({
           title: "Date blocked!",
-          description: `${projectData.name} has been added.`
+          description: `${projectData.name} has been added.`,
+          duration: 2000
         });
       }
     }
@@ -261,7 +293,8 @@ const Index = () => {
     
     toast({
       title: "Date canceled",
-      description: "You'll be reminded to confirm status at 5:00 PM."
+      description: "You'll be reminded to confirm status at 5:00 PM.",
+      duration: 2000
     });
     
     setIsDateOptionsModalOpen(false);
@@ -275,7 +308,8 @@ const Index = () => {
     
     toast({
       title: "Date re-blocked!",
-      description: `${selectedCalendarDay.project.name} is back on the schedule.`
+      description: `${selectedCalendarDay?.project?.name} is back on the schedule.`,
+      duration: 2000
     });
     
     setIsDateOptionsModalOpen(false);
@@ -287,7 +321,8 @@ const Index = () => {
     
     toast({
       title: "Payment received!",
-      description: "The payment reminder has been removed."
+      description: "The payment reminder has been removed.",
+      duration: 2000
     });
   };
 
@@ -299,7 +334,8 @@ const Index = () => {
     
     toast({
       title: "Confirmed!",
-      description: "Date has been set as a shoot day."
+      description: "Date has been set as a shoot day.",
+      duration: 2000
     });
     
     setIsReminderModalOpen(false);
@@ -314,7 +350,8 @@ const Index = () => {
     
     toast({
       title: "Noted!",
-      description: "Date remains free on your schedule."
+      description: "Date remains free on your schedule.",
+      duration: 2000
     });
     
     setIsReminderModalOpen(false);
@@ -326,7 +363,8 @@ const Index = () => {
     // This will be handled in the Calendar component
     toast({
       title: "Today's schedule",
-      description: "Showing today's date on the calendar."
+      description: "Showing today's date on the calendar.",
+      duration: 2000
     });
   };
 
@@ -338,14 +376,11 @@ const Index = () => {
         onMenuClick={() => setIsSidebarOpen(true)}
       />
       
-      <main className="flex-1 container max-w-4xl mx-auto p-4 md:p-6 space-y-6">
-        {profile.name && (
-          <h2 className="text-xl font-semibold text-gray-800 pb-2 slide-in">
-            Hey {profile.name.split(' ')[0]}
-          </h2>
-        )}
-        
-        <Calendar onDateClick={handleDateClick} />
+      <main className="flex-1 container max-w-4xl mx-auto p-4 md:p-6 space-y-6" onClick={() => setIsSidebarOpen(false)}>
+        <Calendar 
+          onDateClick={handleDateClick} 
+          userName={profile.name}
+        />
         
         {payments.length > 0 && (
           <PaymentsList 
