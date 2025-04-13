@@ -1,10 +1,11 @@
+
 import React from 'react';
 import { format, formatDistanceToNow } from 'date-fns';
-import { Payment } from '@/types';
+import { PaymentReminder } from '@/types';
 import { Button } from '@/components/ui/button';
 
 interface PaymentsListProps {
-  payments: Payment[];
+  payments: PaymentReminder[];
   onMarkAsReceived: (paymentId: string) => void;
 }
 
@@ -20,7 +21,7 @@ const PaymentsList: React.FC<PaymentsListProps> = ({ payments, onMarkAsReceived 
             <li key={payment.id} className="py-4">
               <div className="grid grid-cols-1 md:grid-cols-3 gap-2 items-center">
                 <div>
-                  <p className="text-sm font-medium text-gray-900">{payment.project.name}</p>
+                  <p className="text-sm font-medium text-gray-900">{payment.projectName}</p>
                   <p className="text-sm text-gray-500">
                     Due {formatDistanceToNow(payment.dueDate, { addSuffix: true })}
                   </p>
