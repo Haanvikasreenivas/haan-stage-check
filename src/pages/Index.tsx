@@ -13,6 +13,7 @@ import Sidebar from '@/components/Sidebar/Sidebar';
 import WelcomeAnimation from '@/components/WelcomeAnimation';
 import BlockedDatesCard from '@/components/Dashboard/BlockedDatesCard';
 import NotificationToast from '@/components/Notifications/NotificationToast';
+import ReminderModal from '@/components/Modals/ReminderModal';
 import { CalendarDay, ShootStatusReminder, UserProfile, Project } from '@/types';
 import { useCalendarData } from '@/hooks/useCalendarData';
 
@@ -52,6 +53,7 @@ const Index = () => {
   const [notification, setNotification] = useState<string | null>(null);
 
   const [currentMonth, setCurrentMonth] = useState<Date>(startOfToday());
+  const [isSetReminderModalOpen, setIsSetReminderModalOpen] = useState(false);
 
   const profile = getUserProfile();
 
@@ -142,6 +144,7 @@ const Index = () => {
     setUserProfile(updatedProfile);
     
     showNotification(`Profile updated, ${name.split(' ')[0]}!`);
+    setIsSidebarOpen(false);
     
     if (!localStorage.getItem('haan-welcomed') && name) {
       setShowWelcomeAnimation(true);
@@ -327,6 +330,19 @@ const Index = () => {
     }
   };
 
+  const handleAddReminder = (reminderData: {
+    title: string;
+    date: Date;
+    time: string;
+    projectId?: string;
+    notes?: string;
+  }) => {
+    console.log('Creating reminder:', reminderData);
+    showNotification(`Reminder set for ${format(reminderData.date, 'MMM d')} at ${reminderData.time}`);
+    
+    setIsSetReminderModalOpen(false);
+  };
+
   return (
     <div className="min-h-screen flex flex-col bg-gray-50">
       <Header 
@@ -336,9 +352,13 @@ const Index = () => {
       />
       
       <main className="flex-1 container max-w-4xl mx-auto p-4 md:p-6 space-y-6" onClick={() => isSidebarOpen && setIsSidebarOpen(false)}>
-        <div className="text-center mb-2">
-          <span className="text-xl inline-block animate-pulse">❤️</span>
-        </div>
+        {profile.name && (
+          <div className="text-center mb-2">
+            <h2 className="text-xl font-medium text-gray-800">
+              Hey {profile.name.split(' ')[0]} <span className="inline-block animate-pulse text-2xl">❤️</span>
+            </h2>
+          </div>
+        )}
         
         <Calendar 
           onDateClick={handleDateClick} 
@@ -437,6 +457,19 @@ const Index = () => {
         onClose={() => setIsSearchModalOpen(false)}
         calendarDays={calendarDays}
         onDateSelect={handleDateClick}
+      />
+      
+      <ReminderModal
+        isOpen={isSetReminderModalOpen}
+        onClose={() => setIsSetReminderModalOpen(false)}
+        projects={calendarDays
+          .filter(day => day.project)
+          .map(day => day.project!)
+          .filter((project, index, self) => 
+            index === self.findIndex(p => p.id === project.id)
+          )
+        }
+        onSave={handleAddReminder}
       />
     </div>
   );

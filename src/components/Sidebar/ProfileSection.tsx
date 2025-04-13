@@ -1,9 +1,10 @@
-
-import React, { useState } from 'react';
-import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import { Textarea } from '@/components/ui/textarea';
-import { Label } from '@/components/ui/label';
+import React, { useState, useCallback } from 'react';
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Textarea } from "@/components/ui/textarea";
+import { Edit } from 'lucide-react';
 
 interface ProfileSectionProps {
   profile: {
@@ -22,105 +23,69 @@ const ProfileSection: React.FC<ProfileSectionProps> = ({ profile, onSubmit }) =>
   const [phone, setPhone] = useState(profile.phone || '');
   const [notes, setNotes] = useState(profile.notes || '');
 
-  const handleSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
+  const handleSubmit = useCallback(() => {
     onSubmit(name, email, phone, notes);
     setIsEditing(false);
-  };
-
-  if (!isEditing) {
-    return (
-      <div className="space-y-3">
-        <div>
-          <div className="text-sm font-medium text-gray-500">Name</div>
-          <div>{profile.name || 'Not set'}</div>
-        </div>
-        
-        {profile.email && (
-          <div>
-            <div className="text-sm font-medium text-gray-500">Email</div>
-            <div>{profile.email}</div>
-          </div>
-        )}
-        
-        {profile.phone && (
-          <div>
-            <div className="text-sm font-medium text-gray-500">Phone</div>
-            <div>{profile.phone}</div>
-          </div>
-        )}
-        
-        {profile.notes && (
-          <div>
-            <div className="text-sm font-medium text-gray-500">Notes</div>
-            <div className="text-sm">{profile.notes}</div>
-          </div>
-        )}
-        
-        <Button 
-          variant="outline" 
-          size="sm" 
-          onClick={() => setIsEditing(true)}
-        >
-          Edit Profile
-        </Button>
-      </div>
-    );
-  }
+  }, [name, email, phone, notes, onSubmit]);
 
   return (
-    <form onSubmit={handleSubmit} className="space-y-3">
-      <div className="space-y-2">
-        <Label htmlFor="name">Name</Label>
-        <Input
-          id="name"
-          value={name}
-          onChange={(e) => setName(e.target.value)}
-          required
-        />
-      </div>
-      
-      <div className="space-y-2">
-        <Label htmlFor="email">Email (Optional)</Label>
-        <Input
-          id="email"
-          type="email"
-          value={email}
-          onChange={(e) => setEmail(e.target.value)}
-        />
-      </div>
-      
-      <div className="space-y-2">
-        <Label htmlFor="phone">Phone (Optional)</Label>
-        <Input
-          id="phone"
-          value={phone}
-          onChange={(e) => setPhone(e.target.value)}
-        />
-      </div>
-      
-      <div className="space-y-2">
-        <Label htmlFor="notes">Notes (Optional)</Label>
-        <Textarea
-          id="notes"
-          value={notes}
-          onChange={(e) => setNotes(e.target.value)}
-          placeholder="Any special notes?"
-        />
-      </div>
-      
-      <div className="flex gap-2">
-        <Button type="submit" size="sm">Save</Button>
-        <Button 
-          type="button" 
-          variant="outline" 
-          size="sm" 
-          onClick={() => setIsEditing(false)}
-        >
-          Cancel
+    <div className="space-y-4">
+      <div className="flex items-center justify-between">
+        <div className="flex items-center space-x-4">
+          <Avatar>
+            <AvatarImage src="https://github.com/shadcn.png" alt="Avatar" />
+            <AvatarFallback>{name ? name[0].toUpperCase() : '?'}</AvatarFallback>
+          </Avatar>
+          <div>
+            <h3 className="text-lg font-medium">{name || 'No Name'}</h3>
+            <p className="text-sm text-gray-500">{email || 'No Email'}</p>
+          </div>
+        </div>
+        <Button variant="ghost" size="icon" onClick={() => setIsEditing(true)}>
+          <Edit className="h-4 w-4" />
         </Button>
       </div>
-    </form>
+
+      {isEditing ? (
+        <div className="grid gap-4">
+          <div className="grid gap-2">
+            <Label htmlFor="name">Name</Label>
+            <Input
+              id="name"
+              value={name}
+              onChange={(e) => setName(e.target.value)}
+            />
+          </div>
+          <div className="grid gap-2">
+            <Label htmlFor="email">Email</Label>
+            <Input
+              id="email"
+              type="email"
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+            />
+          </div>
+          <div className="grid gap-2">
+            <Label htmlFor="phone">Phone</Label>
+            <Input
+              id="phone"
+              type="tel"
+              value={phone}
+              onChange={(e) => setPhone(e.target.value)}
+            />
+          </div>
+          <div className="grid gap-2">
+            <Label htmlFor="notes">Notes</Label>
+            <Textarea
+              id="notes"
+              value={notes}
+              onChange={(e) => setNotes(e.target.value)}
+            />
+          </div>
+          <Button onClick={handleSubmit} className="w-full">Save</Button>
+        </div>
+      ) : null}
+    </div>
   );
 };
 

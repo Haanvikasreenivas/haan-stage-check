@@ -6,14 +6,13 @@ import Logo from '@/components/Logo';
 
 interface HeaderProps {
   onSearchClick: () => void;
-  onTodayClick: () => void;
+  onTodayClick?: () => void;
   onMenuClick: () => void;
   onReminderClick?: () => void;
 }
 
 const Header: React.FC<HeaderProps> = ({ 
   onSearchClick, 
-  onTodayClick, 
   onMenuClick,
   onReminderClick 
 }) => {

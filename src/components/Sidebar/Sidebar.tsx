@@ -34,6 +34,12 @@ const Sidebar: React.FC<SidebarProps> = ({
   // Get first name from profile
   const firstName = profile.name ? profile.name.split(' ')[0] : '';
 
+  // Function to handle profile submission and close sidebar
+  const handleProfileSubmit = (name: string, email?: string, phone?: string, notes?: string) => {
+    onProfileSubmit(name, email, phone, notes);
+    // Sidebar will be closed in the parent component
+  };
+
   return (
     <div 
       className={`fixed inset-0 z-50 bg-black/25 backdrop-blur-sm transition-opacity ${
@@ -62,7 +68,7 @@ const Sidebar: React.FC<SidebarProps> = ({
           <div className="p-4 border-b">
             <ProfileSection 
               profile={profile}
-              onSubmit={onProfileSubmit}
+              onSubmit={handleProfileSubmit}
             />
           </div>
           
