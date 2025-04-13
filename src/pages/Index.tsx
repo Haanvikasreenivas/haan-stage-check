@@ -368,7 +368,13 @@ const Index = () => {
         onMenuClick={() => setIsSidebarOpen(true)}
       />
       
-      <main className="flex-1 container max-w-4xl mx-auto p-4 md:p-6 space-y-6">
+      <main className="flex-1 container max-w-4xl mx-auto p-4 md:p-6 space-y-6" onClick={() => isSidebarOpen && setIsSidebarOpen(false)}>
+        <div className="text-center mb-2 animate-fade-in">
+          <h2 className="text-xl font-medium">
+            Hey {profile.name ? profile.name.split(' ')[0] : 'HAAN'} ❤️
+          </h2>
+        </div>
+        
         <Calendar 
           onDateClick={handleDateClick} 
           userName={profile.name}
@@ -383,7 +389,11 @@ const Index = () => {
               {blockedProjects.map(({ project, dates }) => (
                 <BlockedDatesCard
                   key={project.id}
-                  project={project}
+                  project={{
+                    id: project.id,
+                    name: project.name,
+                    color: project.color || '#000000' // Provide default color if missing
+                  }}
                   dates={dates}
                   onClick={() => handleBlockedDateCardClick(project, dates)}
                 />
