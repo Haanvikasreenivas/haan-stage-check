@@ -50,13 +50,8 @@ const CalendarDayCell: React.FC<CalendarDayCellProps> = ({
       style={dayStyle}
       onClick={onClick}
     >
-      <div className="calendar-day-content flex flex-col items-center justify-center">
+      <div className="calendar-day-content flex items-center justify-center">
         <span className={textColorClass}>{format(date, 'd')}</span>
-        {project && (
-          <span className={cn("project-indicator text-[8px] font-medium", textColorClass)}>
-            {project.name.substring(0, 4)}
-          </span>
-        )}
       </div>
       {isCanceled && (
         <div className="absolute inset-0 flex items-center justify-center">

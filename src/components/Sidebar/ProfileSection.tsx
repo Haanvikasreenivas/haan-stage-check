@@ -1,5 +1,5 @@
+
 import React, { useState, useCallback } from 'react';
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -31,15 +31,9 @@ const ProfileSection: React.FC<ProfileSectionProps> = ({ profile, onSubmit }) =>
   return (
     <div className="space-y-4">
       <div className="flex items-center justify-between">
-        <div className="flex items-center space-x-4">
-          <Avatar>
-            <AvatarImage src="https://github.com/shadcn.png" alt="Avatar" />
-            <AvatarFallback>{name ? name[0].toUpperCase() : '?'}</AvatarFallback>
-          </Avatar>
-          <div>
-            <h3 className="text-lg font-medium">{name || 'No Name'}</h3>
-            <p className="text-sm text-gray-500">{email || 'No Email'}</p>
-          </div>
+        <div>
+          <h3 className="text-lg font-medium">{name || 'No Name'}</h3>
+          <p className="text-sm text-gray-500">{email || 'No Email'}</p>
         </div>
         <Button variant="ghost" size="icon" onClick={() => setIsEditing(true)}>
           <Edit className="h-4 w-4" />
