@@ -30,8 +30,8 @@ const Calendar: React.FC<CalendarProps> = ({ onDateClick, userName }) => {
   };
 
   return (
-    <div className="w-full max-w-3xl mx-auto fade-in">
-      <div className="flex items-center justify-between mb-2">
+    <div className="w-full max-w-3xl mx-auto animate-fade-in">
+      <div className="flex items-center justify-between mb-4">
         <CalendarHeader 
           currentMonth={currentMonth}
           onPreviousMonth={goToPreviousMonth}
@@ -42,7 +42,7 @@ const Calendar: React.FC<CalendarProps> = ({ onDateClick, userName }) => {
           variant="outline" 
           size="sm" 
           onClick={goToToday}
-          className="ml-2"
+          className="ml-2 hover:bg-gray-100 transition-colors"
         >
           <CalendarIcon className="h-4 w-4 mr-1" />
           Today

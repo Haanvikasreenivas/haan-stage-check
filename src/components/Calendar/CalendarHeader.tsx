@@ -23,7 +23,7 @@ const CalendarHeader: React.FC<CalendarHeaderProps> = ({
   return (
     <div className="flex flex-col space-y-2 w-full">
       {firstName && (
-        <h2 className="text-xl font-semibold slide-in">
+        <h2 className="text-xl font-semibold animate-fade-in">
           Hey {firstName}
         </h2>
       )}
@@ -37,7 +37,7 @@ const CalendarHeader: React.FC<CalendarHeaderProps> = ({
               variant="ghost" 
               size="icon" 
               onClick={onPreviousMonth}
-              className="h-8 w-8 rounded-full"
+              className="h-8 w-8 rounded-full hover:bg-gray-100 transition-colors"
             >
               <ChevronLeft className="h-5 w-5" />
             </Button>
@@ -45,7 +45,7 @@ const CalendarHeader: React.FC<CalendarHeaderProps> = ({
               variant="ghost" 
               size="icon" 
               onClick={onNextMonth}
-              className="h-8 w-8 rounded-full"
+              className="h-8 w-8 rounded-full hover:bg-gray-100 transition-colors"
             >
               <ChevronRight className="h-5 w-5" />
             </Button>

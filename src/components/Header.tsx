@@ -17,17 +17,18 @@ const Header: React.FC<HeaderProps> = ({ onSearchClick, onTodayClick, onMenuClic
         variant="ghost" 
         size="icon"
         onClick={onMenuClick}
+        data-sidebar="trigger"
       >
         <Menu className="h-5 w-5" />
       </Button>
       
-      <Logo />
+      <div className="font-bold tracking-wide text-xl">HAAN</div>
       
       <div className="flex items-center gap-1">
         <Button 
           variant="ghost" 
           onClick={onTodayClick}
-          className="flex items-center gap-1"
+          className="flex items-center gap-1 hover:bg-gray-100 transition-colors"
           size="sm"
         >
           <CalendarIcon className="h-4 w-4" />
@@ -38,6 +39,7 @@ const Header: React.FC<HeaderProps> = ({ onSearchClick, onTodayClick, onMenuClic
           variant="ghost" 
           onClick={onSearchClick}
           size="icon"
+          className="hover:bg-gray-100 transition-colors"
         >
           <Search className="h-5 w-5" />
         </Button>

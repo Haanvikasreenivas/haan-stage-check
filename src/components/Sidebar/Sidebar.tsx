@@ -59,15 +59,8 @@ const Sidebar: React.FC<SidebarProps> = ({
     }
   });
   
-  // Get available dates (next 30 days)
-  const today = new Date();
-  const availableDates = calendarDays
-    .filter(day => 
-      !day.project && 
-      day.date >= today && 
-      day.date <= new Date(today.getFullYear(), today.getMonth(), today.getDate() + 30)
-    )
-    .map(day => day.date);
+  // Get first name from profile
+  const firstName = profile.name ? profile.name.split(' ')[0] : '';
 
   return (
     <div 
@@ -79,11 +72,11 @@ const Sidebar: React.FC<SidebarProps> = ({
         ref={sidebarRef}
         className={`fixed inset-y-0 left-0 z-50 w-3/4 max-w-sm bg-white shadow-xl transform ${
           isOpen ? 'translate-x-0' : '-translate-x-full'
-        } transition-transform duration-300 ease-in-out`}
+        } transition-transform duration-300 ease-in-out animate-fade-in`}
       >
         <div className="flex items-center justify-between p-4 border-b">
           <h2 className="text-xl font-semibold">
-            {profile.name ? `Hey ${profile.name.split(' ')[0]}` : 'Haan Menu'}
+            {firstName ? `Hey ${firstName}` : 'Menu'}
           </h2>
           <Button variant="ghost" size="icon" onClick={onClose}>
             <X className="h-5 w-5" />
@@ -101,7 +94,7 @@ const Sidebar: React.FC<SidebarProps> = ({
           </div>
           
           {/* Blocked Dates Section */}
-          <div className="p-4 border-b">
+          <div className="p-4">
             <h3 className="text-lg font-medium mb-2">Blocked Dates</h3>
             {Object.values(blockedProjects).length > 0 ? (
               <ul className="space-y-3">
@@ -125,31 +118,6 @@ const Sidebar: React.FC<SidebarProps> = ({
               </ul>
             ) : (
               <p className="text-sm text-gray-500">No blocked dates</p>
-            )}
-          </div>
-          
-          {/* Available Dates Section */}
-          <div className="p-4">
-            <h3 className="text-lg font-medium mb-2">Available Dates</h3>
-            {availableDates.length > 0 ? (
-              <div className="flex flex-wrap gap-2">
-                {availableDates.map(date => (
-                  <Button 
-                    key={format(date, 'yyyy-MM-dd')} 
-                    variant="outline" 
-                    size="sm"
-                    className="text-xs"
-                    onClick={() => {
-                      onDateSelect(date);
-                      onClose();
-                    }}
-                  >
-                    {format(date, 'MMM d')}
-                  </Button>
-                ))}
-              </div>
-            ) : (
-              <p className="text-sm text-gray-500">No available dates in the next 30 days</p>
             )}
           </div>
         </div>

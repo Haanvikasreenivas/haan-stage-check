@@ -67,7 +67,7 @@ const ProjectCardModal: React.FC<ProjectCardModalProps> = ({
     selectedDates.length > 0 ? selectedDates : date ? [date] : []
   );
   
-  // Payment reminder states
+  // Payment reminder states with calendar/time selection
   const [includePaymentReminder, setIncludePaymentReminder] = useState(false);
   const [paymentDueDate, setPaymentDueDate] = useState<Date | undefined>(undefined);
   const [paymentDueTime, setPaymentDueTime] = useState('10:00');
@@ -103,7 +103,7 @@ const ProjectCardModal: React.FC<ProjectCardModalProps> = ({
     toast({
       title: "Dates blocked!",
       description: `${name} has been added to ${selectedDateArray.length} dates.`,
-      className: "toast-enter",
+      className: "animate-fade-in",
       duration: 2000, // 2 seconds as requested
     });
   };
@@ -112,7 +112,7 @@ const ProjectCardModal: React.FC<ProjectCardModalProps> = ({
 
   return (
     <Dialog open={isOpen} onOpenChange={(open) => !open && onClose()}>
-      <DialogContent className="sm:max-w-md fade-in">
+      <DialogContent className="sm:max-w-md max-h-[90vh] overflow-y-auto animate-fade-in">
         <DialogHeader>
           <DialogTitle>
             {existingProject ? 'Edit Project' : 'Block Dates'}
@@ -127,6 +127,7 @@ const ProjectCardModal: React.FC<ProjectCardModalProps> = ({
               value={name}
               onChange={(e) => setName(e.target.value)}
               placeholder="e.g. Serial XYZ"
+              className="animate-fade-in"
             />
           </div>
 
@@ -137,9 +138,9 @@ const ProjectCardModal: React.FC<ProjectCardModalProps> = ({
                 <button
                   key={paletteColor}
                   type="button"
-                  className={`w-8 h-8 rounded-full ${
-                    color === paletteColor ? 'ring-2 ring-primary ring-offset-2' : ''
-                  }`}
+                  className={`w-8 h-8 rounded-full transition-transform ${
+                    color === paletteColor ? 'ring-2 ring-primary ring-offset-2 scale-110' : ''
+                  } hover:scale-105`}
                   style={{ backgroundColor: paletteColor }}
                   onClick={() => setColor(paletteColor)}
                   aria-label={`Select color ${paletteColor}`}
@@ -155,7 +156,7 @@ const ProjectCardModal: React.FC<ProjectCardModalProps> = ({
               value={notes}
               onChange={(e) => setNotes(e.target.value)}
               placeholder="e.g. Studio 7, Contact: John"
-              className="resize-none"
+              className="resize-none animate-fade-in"
             />
           </div>
 
@@ -172,7 +173,7 @@ const ProjectCardModal: React.FC<ProjectCardModalProps> = ({
                 mode="multiple"
                 selected={selectedDateArray}
                 onSelect={handleDateSelect}
-                className="w-full pointer-events-auto"
+                className="w-full pointer-events-auto animate-fade-in"
               />
             </div>
           </div>
@@ -230,8 +231,14 @@ const ProjectCardModal: React.FC<ProjectCardModalProps> = ({
         </div>
 
         <DialogFooter>
-          <Button variant="outline" onClick={onClose}>Cancel</Button>
-          <Button onClick={handleSubmit} disabled={!name.trim() || selectedDateArray.length === 0}>
+          <Button variant="outline" onClick={onClose} className="hover:bg-gray-100 transition-colors">
+            Cancel
+          </Button>
+          <Button 
+            onClick={handleSubmit} 
+            disabled={!name.trim() || selectedDateArray.length === 0}
+            className="hover:bg-primary/90 transition-colors animate-fade-in"
+          >
             {existingProject ? 'Update' : 'Block Dates'}
           </Button>
         </DialogFooter>

@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from 'react';
 import { startOfToday, format } from 'date-fns';
 import { useToast } from '@/hooks/use-toast';
@@ -11,7 +12,7 @@ import ShootStatusModal from '@/components/Modals/ShootStatusModal';
 import SearchModal from '@/components/Modals/SearchModal';
 import Sidebar from '@/components/Sidebar/Sidebar';
 import WelcomeAnimation from '@/components/WelcomeAnimation';
-import { CalendarDay, ShootStatusReminder, UserProfile } from '@/types';
+import { CalendarDay, ShootStatusReminder, UserProfile, Project } from '@/types';
 import { useCalendarData } from '@/hooks/useCalendarData';
 
 const Index = () => {
@@ -48,27 +49,49 @@ const Index = () => {
   const [currentReminder, setCurrentReminder] = useState<ShootStatusReminder | null>(null);
   const [isReminderModalOpen, setIsReminderModalOpen] = useState(false);
 
+  // Blocked projects for display on homepage
+  const [blockedProjects, setBlockedProjects] = useState<{ project: Project, dates: Date[] }[]>([]);
+
   // Get user profile
   const profile = getUserProfile();
 
-  // Add event listener to close the sidebar when clicking on the main content
+  // Group blocked dates by project
   useEffect(() => {
-    const handleClickOutside = (event: MouseEvent) => {
-      // If sidebar is open and the click is not on the sidebar itself
-      if (isSidebarOpen) {
-        const target = event.target as HTMLElement;
-        const isInsideSidebar = target.closest('[data-sidebar="sidebar"]');
-        const isHamburgerButton = target.closest('[data-sidebar="trigger"]');
-        
-        if (!isInsideSidebar && !isHamburgerButton) {
-          setIsSidebarOpen(false);
+    const projectsMap: { [projectId: string]: { project: Project, dates: Date[] } } = {};
+    
+    calendarDays.forEach((day) => {
+      if (day.project && day.project.status === 'blocked') {
+        if (!projectsMap[day.project.id]) {
+          projectsMap[day.project.id] = {
+            project: day.project,
+            dates: []
+          };
         }
+        projectsMap[day.project.id].dates.push(day.date);
+      }
+    });
+    
+    setBlockedProjects(Object.values(projectsMap));
+  }, [calendarDays]);
+
+  // Close sidebar when clicking on the main content
+  useEffect(() => {
+    const handleMainClick = (event: MouseEvent) => {
+      const target = event.target as HTMLElement;
+      
+      // Only close if clicking on the main content (not the sidebar or hamburger button)
+      if (
+        isSidebarOpen && 
+        !target.closest('[data-sidebar="sidebar"]') && 
+        !target.closest('[data-sidebar="trigger"]')
+      ) {
+        setIsSidebarOpen(false);
       }
     };
-
-    document.addEventListener('click', handleClickOutside);
+    
+    document.addEventListener('click', handleMainClick);
     return () => {
-      document.removeEventListener('click', handleClickOutside);
+      document.removeEventListener('click', handleMainClick);
     };
   }, [isSidebarOpen]);
 
@@ -368,6 +391,13 @@ const Index = () => {
     });
   };
 
+  // Close sidebar when clicking on main content
+  const handleMainContentClick = () => {
+    if (isSidebarOpen) {
+      setIsSidebarOpen(false);
+    }
+  };
+
   return (
     <div className="min-h-screen flex flex-col bg-gray-50">
       <Header 
@@ -376,11 +406,37 @@ const Index = () => {
         onMenuClick={() => setIsSidebarOpen(true)}
       />
       
-      <main className="flex-1 container max-w-4xl mx-auto p-4 md:p-6 space-y-6" onClick={() => setIsSidebarOpen(false)}>
+      <main className="flex-1 container max-w-4xl mx-auto p-4 md:p-6 space-y-6" onClick={handleMainContentClick}>
         <Calendar 
           onDateClick={handleDateClick} 
           userName={profile.name}
         />
+        
+        {/* Blocked Dates Section on homepage */}
+        {blockedProjects.length > 0 && (
+          <div className="space-y-3 animate-fade-in">
+            <h3 className="text-lg font-medium">Blocked Dates</h3>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+              {blockedProjects.map(({ project, dates }) => (
+                <div 
+                  key={project.id} 
+                  className="bg-white p-4 rounded-lg shadow-sm border hover:shadow-md transition-shadow"
+                  style={{ borderLeftColor: project.color, borderLeftWidth: '4px' }}
+                >
+                  <div 
+                    className="font-medium text-lg mb-1"
+                    style={{ color: project.color || 'black' }}
+                  >
+                    {project.name}
+                  </div>
+                  <div className="text-sm text-gray-600">
+                    {dates.map(date => format(date, 'MMM d')).join(', ')}
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
         
         {payments.length > 0 && (
           <PaymentsList 

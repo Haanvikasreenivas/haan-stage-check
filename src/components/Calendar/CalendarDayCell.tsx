@@ -33,12 +33,21 @@ const CalendarDayCell: React.FC<CalendarDayCellProps> = ({
 
   // Calculate text color based on background color
   const getTextColor = (bgColor: string) => {
-    // Simple check if background is dark, return white text, otherwise black
+    // Convert hex to RGB
     const r = parseInt(bgColor.slice(1, 3), 16);
     const g = parseInt(bgColor.slice(3, 5), 16);
     const b = parseInt(bgColor.slice(5, 7), 16);
-    const brightness = (r * 299 + g * 587 + b * 114) / 1000;
-    return brightness > 128 ? 'text-black' : 'text-white';
+    
+    // Calculate brightness using the HSP color model
+    // Source: http://alienryderflex.com/hsp.html
+    const brightness = Math.sqrt(
+      0.299 * (r * r) +
+      0.587 * (g * g) +
+      0.114 * (b * b)
+    );
+    
+    // Return white for dark colors, black for light
+    return brightness < 130 ? 'text-white' : 'text-black';
   };
 
   // Custom style for project color
