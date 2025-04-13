@@ -2,7 +2,6 @@
 import React from 'react';
 import { Button } from "@/components/ui/button";
 import { Search, Calendar as CalendarIcon, Menu } from 'lucide-react';
-import Logo from './Logo';
 
 interface HeaderProps {
   onSearchClick: () => void;

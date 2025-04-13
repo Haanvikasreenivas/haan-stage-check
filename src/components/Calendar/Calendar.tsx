@@ -11,23 +11,35 @@ import { Calendar as CalendarIcon } from 'lucide-react';
 interface CalendarProps {
   onDateClick: (date: Date) => void;
   userName?: string;
+  onMonthChange?: (month: Date) => void;
 }
 
-const Calendar: React.FC<CalendarProps> = ({ onDateClick, userName }) => {
+const Calendar: React.FC<CalendarProps> = ({ onDateClick, userName, onMonthChange }) => {
   const [currentMonth, setCurrentMonth] = useState<Date>(startOfToday());
   const { calendarDays } = useCalendarData(currentMonth);
 
   const goToPreviousMonth = () => {
-    setCurrentMonth(subMonths(currentMonth, 1));
+    const prevMonth = subMonths(currentMonth, 1);
+    setCurrentMonth(prevMonth);
+    if (onMonthChange) onMonthChange(prevMonth);
   };
 
   const goToNextMonth = () => {
-    setCurrentMonth(addMonths(currentMonth, 1));
+    const nextMonth = addMonths(currentMonth, 1);
+    setCurrentMonth(nextMonth);
+    if (onMonthChange) onMonthChange(nextMonth);
   };
 
   const goToToday = () => {
-    setCurrentMonth(startOfToday());
+    const today = startOfToday();
+    setCurrentMonth(today);
+    if (onMonthChange) onMonthChange(today);
   };
+
+  // Call onMonthChange with initial month
+  useEffect(() => {
+    if (onMonthChange) onMonthChange(currentMonth);
+  }, []);
 
   return (
     <div className="w-full max-w-3xl mx-auto animate-fade-in">

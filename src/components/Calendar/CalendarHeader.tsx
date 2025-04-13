@@ -1,7 +1,7 @@
 
 import React from 'react';
 import { format } from 'date-fns';
-import { ChevronLeft, ChevronRight } from 'lucide-react';
+import { ChevronLeft, ChevronRight, Heart } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 
 interface CalendarHeaderProps {
@@ -23,8 +23,8 @@ const CalendarHeader: React.FC<CalendarHeaderProps> = ({
   return (
     <div className="flex flex-col space-y-2 w-full">
       {firstName && (
-        <h2 className="text-xl font-semibold animate-fade-in">
-          Hey {firstName}
+        <h2 className="text-xl font-semibold animate-fade-in text-center flex justify-center items-center gap-1">
+          Hey {firstName} <Heart className="h-4 w-4 fill-red-500 text-red-500" />
         </h2>
       )}
       <div className="flex items-center justify-between">

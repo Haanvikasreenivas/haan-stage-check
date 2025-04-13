@@ -1,6 +1,5 @@
-
-import React, { useState, useEffect } from 'react';
-import { startOfToday, format } from 'date-fns';
+import React, { useState, useEffect, useCallback } from 'react';
+import { startOfToday, format, isSameMonth } from 'date-fns';
 import { useToast } from '@/hooks/use-toast';
 import Header from '@/components/Header';
 import Calendar from '@/components/Calendar/Calendar';
@@ -12,12 +11,14 @@ import ShootStatusModal from '@/components/Modals/ShootStatusModal';
 import SearchModal from '@/components/Modals/SearchModal';
 import Sidebar from '@/components/Sidebar/Sidebar';
 import WelcomeAnimation from '@/components/WelcomeAnimation';
+import BlockedDatesCard from '@/components/Dashboard/BlockedDatesCard';
+import NotificationToast from '@/components/Notifications/NotificationToast';
 import { CalendarDay, ShootStatusReminder, UserProfile, Project } from '@/types';
 import { useCalendarData } from '@/hooks/useCalendarData';
 
 const Index = () => {
   const { toast } = useToast();
-  const [currentDate] = useState<Date>(startOfToday());
+  const [currentDate, setCurrentDate] = useState<Date>(startOfToday());
   const {
     calendarDays,
     payments,
@@ -51,6 +52,12 @@ const Index = () => {
 
   // Blocked projects for display on homepage
   const [blockedProjects, setBlockedProjects] = useState<{ project: Project, dates: Date[] }[]>([]);
+  
+  // Custom notification
+  const [notification, setNotification] = useState<string | null>(null);
+
+  // Current month for filtering
+  const [currentMonth, setCurrentMonth] = useState<Date>(startOfToday());
 
   // Get user profile
   const profile = getUserProfile();
@@ -61,39 +68,26 @@ const Index = () => {
     
     calendarDays.forEach((day) => {
       if (day.project && day.project.status === 'blocked') {
-        if (!projectsMap[day.project.id]) {
-          projectsMap[day.project.id] = {
-            project: day.project,
-            dates: []
-          };
+        // Only include dates from the currently displayed month
+        if (isSameMonth(day.date, currentMonth)) {
+          if (!projectsMap[day.project.id]) {
+            projectsMap[day.project.id] = {
+              project: day.project,
+              dates: []
+            };
+          }
+          projectsMap[day.project.id].dates.push(day.date);
         }
-        projectsMap[day.project.id].dates.push(day.date);
       }
     });
     
     setBlockedProjects(Object.values(projectsMap));
-  }, [calendarDays]);
+  }, [calendarDays, currentMonth]);
 
-  // Close sidebar when clicking on the main content
-  useEffect(() => {
-    const handleMainClick = (event: MouseEvent) => {
-      const target = event.target as HTMLElement;
-      
-      // Only close if clicking on the main content (not the sidebar or hamburger button)
-      if (
-        isSidebarOpen && 
-        !target.closest('[data-sidebar="sidebar"]') && 
-        !target.closest('[data-sidebar="trigger"]')
-      ) {
-        setIsSidebarOpen(false);
-      }
-    };
-    
-    document.addEventListener('click', handleMainClick);
-    return () => {
-      document.removeEventListener('click', handleMainClick);
-    };
-  }, [isSidebarOpen]);
+  // Show a custom notification that fades away
+  const showNotification = useCallback((message: string) => {
+    setNotification(message);
+  }, []);
 
   // Check for reminders that need to be shown
   useEffect(() => {
@@ -162,10 +156,7 @@ const Index = () => {
     
     setUserProfile(updatedProfile);
     
-    toast({
-      title: "Profile updated!",
-      description: `Your profile has been saved, ${name.split(' ')[0]}.`,
-    });
+    showNotification(`Profile updated, ${name.split(' ')[0]}!`);
     
     // Show welcome animation if this is the first time setting the name
     if (!localStorage.getItem('haan-welcomed') && name) {
@@ -247,11 +238,7 @@ const Index = () => {
       }
     });
     
-    toast({
-      title: "Dates blocked!",
-      description: `${projectData.name} has been added to ${projectData.selectedDates.length} dates.`,
-      duration: 2000
-    });
+    showNotification(`${projectData.name} has been added to ${projectData.selectedDates.length} dates`);
     
     setIsProjectCardModalOpen(false);
   };
@@ -281,27 +268,15 @@ const Index = () => {
         color: projectData.color
       });
       
-      toast({
-        title: "Project updated!",
-        description: `${projectData.name} has been updated.`,
-        duration: 2000
-      });
+      showNotification(`${projectData.name} has been updated`);
     } else {
       // Add new project
       const projectId = addProject(selectedDate, projectData);
       
       if (projectData.paymentReminder) {
-        toast({
-          title: "Date blocked!",
-          description: `${projectData.name} added with payment reminder.`,
-          duration: 2000
-        });
+        showNotification(`${projectData.name} added with payment reminder`);
       } else {
-        toast({
-          title: "Date blocked!",
-          description: `${projectData.name} has been added.`,
-          duration: 2000
-        });
+        showNotification(`${projectData.name} has been added`);
       }
     }
     
@@ -314,11 +289,7 @@ const Index = () => {
     
     cancelProject(selectedDate);
     
-    toast({
-      title: "Date canceled",
-      description: "You'll be reminded to confirm status at 5:00 PM.",
-      duration: 2000
-    });
+    showNotification("Date canceled");
     
     setIsDateOptionsModalOpen(false);
   };
@@ -329,11 +300,7 @@ const Index = () => {
     
     reblockProject(selectedDate);
     
-    toast({
-      title: "Date re-blocked!",
-      description: `${selectedCalendarDay?.project?.name} is back on the schedule.`,
-      duration: 2000
-    });
+    showNotification(`${selectedCalendarDay?.project?.name} is back on the schedule`);
     
     setIsDateOptionsModalOpen(false);
   };
@@ -342,11 +309,7 @@ const Index = () => {
   const handlePaymentReceived = (paymentId: string) => {
     markPaymentReceived(paymentId);
     
-    toast({
-      title: "Payment received!",
-      description: "The payment reminder has been removed.",
-      duration: 2000
-    });
+    showNotification("Payment received!");
   };
 
   // Handle shoot status confirmation
@@ -355,11 +318,7 @@ const Index = () => {
     
     confirmShootStatus(currentReminder, true);
     
-    toast({
-      title: "Confirmed!",
-      description: "Date has been set as a shoot day.",
-      duration: 2000
-    });
+    showNotification("Date has been set as a shoot day");
     
     setIsReminderModalOpen(false);
     setCurrentReminder(null);
@@ -371,11 +330,7 @@ const Index = () => {
     
     confirmShootStatus(currentReminder, false);
     
-    toast({
-      title: "Noted!",
-      description: "Date remains free on your schedule.",
-      duration: 2000
-    });
+    showNotification("Date remains free on your schedule");
     
     setIsReminderModalOpen(false);
     setCurrentReminder(null);
@@ -383,18 +338,25 @@ const Index = () => {
 
   // Handle today button click
   const handleTodayClick = () => {
-    // This will be handled in the Calendar component
-    toast({
-      title: "Today's schedule",
-      description: "Showing today's date on the calendar.",
-      duration: 2000
-    });
+    setCurrentMonth(startOfToday());
+    showNotification("Showing today's date");
   };
 
-  // Close sidebar when clicking on main content
-  const handleMainContentClick = () => {
-    if (isSidebarOpen) {
-      setIsSidebarOpen(false);
+  // Handle month change
+  const handleMonthChange = (newMonth: Date) => {
+    setCurrentMonth(newMonth);
+  };
+
+  // Handle blocked date card click
+  const handleBlockedDateCardClick = (project: Project, dates: Date[]) => {
+    if (dates.length > 0) {
+      setSelectedDate(dates[0]);
+      setSelectedCalendarDay({
+        date: dates[0],
+        project
+      });
+      setSelectedDates(dates);
+      setIsProjectCardModalOpen(true);
     }
   };
 
@@ -406,10 +368,11 @@ const Index = () => {
         onMenuClick={() => setIsSidebarOpen(true)}
       />
       
-      <main className="flex-1 container max-w-4xl mx-auto p-4 md:p-6 space-y-6" onClick={handleMainContentClick}>
+      <main className="flex-1 container max-w-4xl mx-auto p-4 md:p-6 space-y-6">
         <Calendar 
           onDateClick={handleDateClick} 
           userName={profile.name}
+          onMonthChange={handleMonthChange}
         />
         
         {/* Blocked Dates Section on homepage */}
@@ -418,21 +381,12 @@ const Index = () => {
             <h3 className="text-lg font-medium">Blocked Dates</h3>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
               {blockedProjects.map(({ project, dates }) => (
-                <div 
-                  key={project.id} 
-                  className="bg-white p-4 rounded-lg shadow-sm border hover:shadow-md transition-shadow"
-                  style={{ borderLeftColor: project.color, borderLeftWidth: '4px' }}
-                >
-                  <div 
-                    className="font-medium text-lg mb-1"
-                    style={{ color: project.color || 'black' }}
-                  >
-                    {project.name}
-                  </div>
-                  <div className="text-sm text-gray-600">
-                    {dates.map(date => format(date, 'MMM d')).join(', ')}
-                  </div>
-                </div>
+                <BlockedDatesCard
+                  key={project.id}
+                  project={project}
+                  dates={dates}
+                  onClick={() => handleBlockedDateCardClick(project, dates)}
+                />
               ))}
             </div>
           </div>
@@ -454,6 +408,7 @@ const Index = () => {
         onDateSelect={handleDateClick}
         onProfileSubmit={handleProfileSubmit}
         profile={profile}
+        onHomeClick={() => {}}
       />
       
       {/* Welcome Animation */}
@@ -461,6 +416,14 @@ const Index = () => {
         <WelcomeAnimation 
           name={profile.name} 
           onClose={() => setShowWelcomeAnimation(false)} 
+        />
+      )}
+      
+      {/* Notification Toast */}
+      {notification && (
+        <NotificationToast 
+          message={notification}
+          onClose={() => setNotification(null)}
         />
       )}
       
