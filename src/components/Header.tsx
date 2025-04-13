@@ -1,15 +1,22 @@
 
 import React from 'react';
 import { Button } from "@/components/ui/button";
-import { Search, Calendar as CalendarIcon, Menu } from 'lucide-react';
+import { Search, Menu, Bell } from 'lucide-react';
+import Logo from '@/components/Logo';
 
 interface HeaderProps {
   onSearchClick: () => void;
   onTodayClick: () => void;
   onMenuClick: () => void;
+  onReminderClick?: () => void;
 }
 
-const Header: React.FC<HeaderProps> = ({ onSearchClick, onTodayClick, onMenuClick }) => {
+const Header: React.FC<HeaderProps> = ({ 
+  onSearchClick, 
+  onTodayClick, 
+  onMenuClick,
+  onReminderClick 
+}) => {
   return (
     <header className="flex items-center justify-between p-4 border-b bg-white shadow-sm">
       <Button 
@@ -21,24 +28,28 @@ const Header: React.FC<HeaderProps> = ({ onSearchClick, onTodayClick, onMenuClic
         <Menu className="h-5 w-5" />
       </Button>
       
-      <div className="font-bold tracking-wide text-xl">HAAN</div>
+      <div className="flex items-center justify-center gap-1 absolute left-1/2 transform -translate-x-1/2">
+        <Logo />
+        <span className="font-bold tracking-wide text-xl">HAAN</span>
+      </div>
       
       <div className="flex items-center gap-1">
-        <Button 
-          variant="ghost" 
-          onClick={onTodayClick}
-          className="flex items-center gap-1 hover:bg-gray-100 transition-colors"
-          size="sm"
-        >
-          <CalendarIcon className="h-4 w-4" />
-          <span className="text-sm">Today</span>
-        </Button>
+        {onReminderClick && (
+          <Button 
+            variant="ghost" 
+            onClick={onReminderClick}
+            size="icon"
+            className="hover:bg-gray-100 transition-colors rounded-full"
+          >
+            <Bell className="h-5 w-5" />
+          </Button>
+        )}
         
         <Button 
           variant="ghost" 
           onClick={onSearchClick}
           size="icon"
-          className="hover:bg-gray-100 transition-colors"
+          className="hover:bg-gray-100 transition-colors rounded-full"
         >
           <Search className="h-5 w-5" />
         </Button>

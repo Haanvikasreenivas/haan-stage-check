@@ -3,6 +3,7 @@ import React from 'react';
 import { format } from 'date-fns';
 import { CalendarDay } from '@/types';
 import { cn } from '@/lib/utils';
+import { getContrastTextColor } from '@/utils/colorUtils';
 
 interface CalendarDayCellProps {
   calendarDay: CalendarDay;
@@ -22,21 +23,6 @@ const CalendarDayCell: React.FC<CalendarDayCellProps> = ({
   const isBlocked = project?.status === 'blocked';
   const isCanceled = project?.status === 'canceled';
 
-  // Calculate text color based on background color
-  const getContrastColor = (hexColor: string) => {
-    // Convert hex to RGB
-    const r = parseInt(hexColor.slice(1, 3), 16);
-    const g = parseInt(hexColor.slice(3, 5), 16);
-    const b = parseInt(hexColor.slice(5, 7), 16);
-    
-    // Calculate luminance (perceived brightness)
-    // Using the formula from WCAG 2.0
-    const luminance = (0.299 * r + 0.587 * g + 0.114 * b) / 255;
-    
-    // Return white for dark colors, black for light colors
-    return luminance > 0.5 ? 'text-black' : 'text-white';
-  };
-
   // Determine day cell classes
   const dayCellClasses = cn(
     'calendar-day relative flex items-center justify-center h-10 w-10 cursor-pointer transition-all duration-200',
@@ -55,7 +41,7 @@ const CalendarDayCell: React.FC<CalendarDayCellProps> = ({
   
   // Determine text color class based on background color for blocked dates
   const textColorClass = isBlocked && project?.color 
-    ? getContrastColor(project.color) 
+    ? getContrastTextColor(project.color) 
     : '';
 
   return (

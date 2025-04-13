@@ -33,7 +33,6 @@ const Index = () => {
     getUserProfile
   } = useCalendarData(currentDate);
 
-  // Modal states
   const [selectedDate, setSelectedDate] = useState<Date | null>(null);
   const [selectedCalendarDay, setSelectedCalendarDay] = useState<CalendarDay | null>(null);
   const [isAddProjectModalOpen, setIsAddProjectModalOpen] = useState(false);
@@ -43,32 +42,24 @@ const Index = () => {
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
   const [selectedDates, setSelectedDates] = useState<Date[]>([]);
   
-  // Welcome animation
   const [showWelcomeAnimation, setShowWelcomeAnimation] = useState(false);
   
-  // Reminders
   const [currentReminder, setCurrentReminder] = useState<ShootStatusReminder | null>(null);
   const [isReminderModalOpen, setIsReminderModalOpen] = useState(false);
 
-  // Blocked projects for display on homepage
   const [blockedProjects, setBlockedProjects] = useState<{ project: Project, dates: Date[] }[]>([]);
   
-  // Custom notification
   const [notification, setNotification] = useState<string | null>(null);
 
-  // Current month for filtering
   const [currentMonth, setCurrentMonth] = useState<Date>(startOfToday());
 
-  // Get user profile
   const profile = getUserProfile();
 
-  // Group blocked dates by project
   useEffect(() => {
     const projectsMap: { [projectId: string]: { project: Project, dates: Date[] } } = {};
     
     calendarDays.forEach((day) => {
       if (day.project && day.project.status === 'blocked') {
-        // Only include dates from the currently displayed month
         if (isSameMonth(day.date, currentMonth)) {
           if (!projectsMap[day.project.id]) {
             projectsMap[day.project.id] = {
@@ -84,12 +75,10 @@ const Index = () => {
     setBlockedProjects(Object.values(projectsMap));
   }, [calendarDays, currentMonth]);
 
-  // Show a custom notification that fades away
   const showNotification = useCallback((message: string) => {
     setNotification(message);
   }, []);
 
-  // Check for reminders that need to be shown
   useEffect(() => {
     const checkForReminders = () => {
       const today = new Date();
@@ -107,20 +96,18 @@ const Index = () => {
     
     checkForReminders();
     
-    // Set up check to run at 5:00 PM
     const now = new Date();
     const scheduledTime = new Date(
       now.getFullYear(),
       now.getMonth(),
       now.getDate(),
-      17, // 5 PM
+      17,
       0,
       0
     );
     
     let timeUntilCheck = scheduledTime.getTime() - now.getTime();
     if (timeUntilCheck < 0) {
-      // If it's already past 5 PM, schedule for tomorrow
       timeUntilCheck += 24 * 60 * 60 * 1000;
     }
     
@@ -128,7 +115,6 @@ const Index = () => {
     return () => clearTimeout(timerId);
   }, [reminders, isReminderModalOpen]);
 
-  // Welcome message and animation on first load
   useEffect(() => {
     const isFirstVisit = !localStorage.getItem('haan-visited');
     
@@ -145,7 +131,6 @@ const Index = () => {
     }
   }, [toast, profile]);
 
-  // Handle profile save
   const handleProfileSubmit = (name: string, email?: string, phone?: string, notes?: string) => {
     const updatedProfile: UserProfile = {
       name,
@@ -158,14 +143,12 @@ const Index = () => {
     
     showNotification(`Profile updated, ${name.split(' ')[0]}!`);
     
-    // Show welcome animation if this is the first time setting the name
     if (!localStorage.getItem('haan-welcomed') && name) {
       setShowWelcomeAnimation(true);
       localStorage.setItem('haan-welcomed', 'true');
     }
   };
 
-  // Handle date click from calendar
   const handleDateClick = (date: Date) => {
     const calendarDay = calendarDays.find(
       day => format(day.date, 'yyyy-MM-dd') === format(date, 'yyyy-MM-dd')
@@ -176,7 +159,6 @@ const Index = () => {
     setIsDateOptionsModalOpen(true);
   };
 
-  // Handle adding/editing a project
   const handleAddEditProject = (useProjectCard: boolean = false) => {
     setIsDateOptionsModalOpen(false);
     
@@ -188,7 +170,6 @@ const Index = () => {
     }
   };
 
-  // Handle save project from ProjectCardModal
   const handleSaveProjectCard = (projectData: {
     name: string;
     notes?: string;
@@ -204,21 +185,18 @@ const Index = () => {
   }) => {
     if (projectData.selectedDates.length === 0) return;
     
-    // Add project for each selected date
     projectData.selectedDates.forEach(date => {
       const existingProject = calendarDays.find(
         day => format(day.date, 'yyyy-MM-dd') === format(date, 'yyyy-MM-dd')
       )?.project;
       
       if (existingProject) {
-        // Edit existing project
         editProject(date, existingProject.id, {
           name: projectData.name,
           notes: projectData.notes,
           color: projectData.color
         });
       } else {
-        // Add new project
         const paymentReminderData = projectData.paymentReminder?.dueDate 
           ? {
               timeValue: 1,
@@ -243,7 +221,6 @@ const Index = () => {
     setIsProjectCardModalOpen(false);
   };
 
-  // Handle save project
   const handleSaveProject = (projectData: {
     name: string;
     notes?: string;
@@ -261,7 +238,6 @@ const Index = () => {
     const existingProject = selectedCalendarDay?.project;
     
     if (existingProject) {
-      // Edit existing project
       editProject(selectedDate, existingProject.id, {
         name: projectData.name,
         notes: projectData.notes,
@@ -270,7 +246,6 @@ const Index = () => {
       
       showNotification(`${projectData.name} has been updated`);
     } else {
-      // Add new project
       const projectId = addProject(selectedDate, projectData);
       
       if (projectData.paymentReminder) {
@@ -283,7 +258,6 @@ const Index = () => {
     setIsAddProjectModalOpen(false);
   };
 
-  // Handle cancel project
   const handleCancelProject = () => {
     if (!selectedDate || !selectedCalendarDay?.project) return;
     
@@ -294,7 +268,6 @@ const Index = () => {
     setIsDateOptionsModalOpen(false);
   };
 
-  // Handle re-block project
   const handleReblockProject = () => {
     if (!selectedDate || !selectedCalendarDay?.project) return;
     
@@ -305,14 +278,12 @@ const Index = () => {
     setIsDateOptionsModalOpen(false);
   };
 
-  // Handle payment received
   const handlePaymentReceived = (paymentId: string) => {
     markPaymentReceived(paymentId);
     
     showNotification("Payment received!");
   };
 
-  // Handle shoot status confirmation
   const handleConfirmShoot = () => {
     if (!currentReminder) return;
     
@@ -324,7 +295,6 @@ const Index = () => {
     setCurrentReminder(null);
   };
 
-  // Handle no shoot confirmation
   const handleConfirmNoShoot = () => {
     if (!currentReminder) return;
     
@@ -336,18 +306,15 @@ const Index = () => {
     setCurrentReminder(null);
   };
 
-  // Handle today button click
   const handleTodayClick = () => {
     setCurrentMonth(startOfToday());
     showNotification("Showing today's date");
   };
 
-  // Handle month change
   const handleMonthChange = (newMonth: Date) => {
     setCurrentMonth(newMonth);
   };
 
-  // Handle blocked date card click
   const handleBlockedDateCardClick = (project: Project, dates: Date[]) => {
     if (dates.length > 0) {
       setSelectedDate(dates[0]);
@@ -369,10 +336,8 @@ const Index = () => {
       />
       
       <main className="flex-1 container max-w-4xl mx-auto p-4 md:p-6 space-y-6" onClick={() => isSidebarOpen && setIsSidebarOpen(false)}>
-        <div className="text-center mb-2 animate-fade-in">
-          <h2 className="text-xl font-medium">
-            Hey {profile.name ? profile.name.split(' ')[0] : 'HAAN'} ❤️
-          </h2>
+        <div className="text-center mb-2">
+          <span className="text-xl inline-block animate-pulse">❤️</span>
         </div>
         
         <Calendar 
@@ -381,7 +346,6 @@ const Index = () => {
           onMonthChange={handleMonthChange}
         />
         
-        {/* Blocked Dates Section on homepage */}
         {blockedProjects.length > 0 && (
           <div className="space-y-3 animate-fade-in">
             <h3 className="text-lg font-medium">Blocked Dates</h3>
@@ -392,7 +356,7 @@ const Index = () => {
                   project={{
                     id: project.id,
                     name: project.name,
-                    color: project.color || '#000000' // Provide default color if missing
+                    color: project.color || '#000000'
                   }}
                   dates={dates}
                   onClick={() => handleBlockedDateCardClick(project, dates)}
@@ -410,7 +374,6 @@ const Index = () => {
         )}
       </main>
       
-      {/* Sidebar */}
       <Sidebar 
         isOpen={isSidebarOpen}
         onClose={() => setIsSidebarOpen(false)}
@@ -421,7 +384,6 @@ const Index = () => {
         onHomeClick={() => {}}
       />
       
-      {/* Welcome Animation */}
       {showWelcomeAnimation && (
         <WelcomeAnimation 
           name={profile.name} 
@@ -429,7 +391,6 @@ const Index = () => {
         />
       )}
       
-      {/* Notification Toast */}
       {notification && (
         <NotificationToast 
           message={notification}
@@ -437,7 +398,6 @@ const Index = () => {
         />
       )}
       
-      {/* Modals */}
       <AddProjectModal
         isOpen={isAddProjectModalOpen}
         date={selectedDate}
@@ -467,7 +427,7 @@ const Index = () => {
       <ShootStatusModal
         isOpen={isReminderModalOpen}
         reminder={currentReminder}
-        onClose={() => {}}  // Prevent closing without a choice
+        onClose={() => {}}
         onConfirmShoot={handleConfirmShoot}
         onConfirmNoShoot={handleConfirmNoShoot}
       />
