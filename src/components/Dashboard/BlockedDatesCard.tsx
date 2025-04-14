@@ -15,11 +15,16 @@ interface BlockedDatesCardProps {
 }
 
 const BlockedDatesCard: React.FC<BlockedDatesCardProps> = ({ project, dates, onClick }) => {
-  // Format dates to display
-  const formattedDates = dates
-    .sort((a, b) => a.getTime() - b.getTime())
-    .map(date => format(date, 'MMM d'))
-    .join(', ');
+  // Format dates to display in a more compact way
+  const formatDatesCompact = (dates: Date[]) => {
+    if (!dates.length) return '';
+    
+    // Sort dates chronologically
+    const sortedDates = [...dates].sort((a, b) => a.getTime() - b.getTime());
+    
+    // Format each date to just show month and day
+    return sortedDates.map(date => format(date, 'MMM d')).join(', ');
+  };
 
   // Default color if none is provided
   const projectColor = project.color || '#000000';
@@ -43,7 +48,8 @@ const BlockedDatesCard: React.FC<BlockedDatesCardProps> = ({ project, dates, onC
           {project.name}
         </h3>
         <p className="text-sm text-gray-600">
-          {dates.length > 1 ? `${dates.length} dates: ` : 'Date: '}{formattedDates}
+          {dates.length > 1 ? `${dates.length} dates: ` : 'Date: '}
+          {formatDatesCompact(dates)}
         </p>
       </CardContent>
     </Card>

@@ -4,7 +4,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
-import { Edit } from 'lucide-react';
+import { Edit, UserRound } from 'lucide-react';
 
 interface ProfileSectionProps {
   profile: {
@@ -31,9 +31,9 @@ const ProfileSection: React.FC<ProfileSectionProps> = ({ profile, onSubmit }) =>
   return (
     <div className="space-y-4">
       <div className="flex items-center justify-between">
-        <div>
-          <h3 className="text-lg font-medium">{name || 'No Name'}</h3>
-          <p className="text-sm text-gray-500">{email || 'No Email'}</p>
+        <div className="flex items-center gap-2">
+          <UserRound className="h-5 w-5 text-gray-600" />
+          <h3 className="text-lg font-medium">Profile</h3>
         </div>
         <Button variant="ghost" size="icon" onClick={() => setIsEditing(true)}>
           <Edit className="h-4 w-4" />

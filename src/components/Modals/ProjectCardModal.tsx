@@ -15,6 +15,7 @@ import { Label } from '@/components/ui/label';
 import { Calendar } from '@/components/ui/calendar';
 import { Project } from '@/types';
 import { useToast } from '@/hooks/use-toast';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 
 // Predefined color palette
 const colorPalette = [
@@ -28,6 +29,14 @@ const colorPalette = [
   '#06B6D4', // Cyan
   '#6B7280', // Gray
   '#1F2937', // Dark Gray
+];
+
+// Time options for select dropdown
+const timeOptions = [
+  "12:00 AM", "1:00 AM", "2:00 AM", "3:00 AM", "4:00 AM", "5:00 AM", "6:00 AM", 
+  "7:00 AM", "8:00 AM", "9:00 AM", "10:00 AM", "11:00 AM",
+  "12:00 PM", "1:00 PM", "2:00 PM", "3:00 PM", "4:00 PM", "5:00 PM", "6:00 PM",
+  "7:00 PM", "8:00 PM", "9:00 PM", "10:00 PM", "11:00 PM"
 ];
 
 interface ProjectCardModalProps {
@@ -73,33 +82,18 @@ const ProjectCardModal: React.FC<ProjectCardModalProps> = ({
   const [paymentDueTime, setPaymentDueTime] = useState('10:00 AM');
   const [paymentNotes, setPaymentNotes] = useState('');
   
-  // For converting between 12-hour and 24-hour formats
-  const [internalTimeValue, setInternalTimeValue] = useState('10:00');
-  
-  // Convert 24-hour time to 12-hour format for display
-  useEffect(() => {
-    if (internalTimeValue) {
-      const [hours, minutes] = internalTimeValue.split(':');
-      const hour = parseInt(hours, 10);
-      const ampm = hour >= 12 ? 'PM' : 'AM';
-      const hour12 = hour % 12 || 12;
-      setPaymentDueTime(`${hour12}:${minutes} ${ampm}`);
-    }
-  }, [internalTimeValue]);
-  
   // Convert 12-hour time to 24-hour format for internal use
-  const handleTimeChange = (time12h: string) => {
-    const [timePart, ampm] = time12h.split(' ');
-    const [hours, minutes] = timePart.split(':');
-    let hour = parseInt(hours, 10);
+  const convertTo24Hour = (time12h: string): string => {
+    const [timePart, modifier] = time12h.split(' ');
+    let [hours, minutes] = timePart.split(':').map(Number);
     
-    if (ampm === 'PM' && hour < 12) {
-      hour += 12;
-    } else if (ampm === 'AM' && hour === 12) {
-      hour = 0;
+    if (hours === 12) {
+      hours = modifier === 'PM' ? 12 : 0;
+    } else if (modifier === 'PM') {
+      hours += 12;
     }
     
-    setInternalTimeValue(`${hour.toString().padStart(2, '0')}:${minutes}`);
+    return `${hours.toString().padStart(2, '0')}:${minutes.toString().padStart(2, '0')}`;
   };
 
   const handleDateSelect = (dates: Date[] | undefined) => {
@@ -121,7 +115,7 @@ const ProjectCardModal: React.FC<ProjectCardModalProps> = ({
           timeUnit: 'days' as const,
           notes: paymentNotes,
           dueDate: paymentDueDate,
-          dueTime: internalTimeValue // Use 24-hour format internally
+          dueTime: convertTo24Hour(paymentDueTime) // Convert to 24-hour format for storage
         }
       } : {})
     };
@@ -236,13 +230,21 @@ const ProjectCardModal: React.FC<ProjectCardModalProps> = ({
                 
                 <div className="space-y-2">
                   <Label htmlFor="payment-time">Payment Due Time</Label>
-                  <Input
-                    id="payment-time"
-                    type="text"
-                    value={paymentDueTime}
-                    onChange={(e) => handleTimeChange(e.target.value)}
-                    placeholder="10:00 AM"
-                  />
+                  <Select 
+                    value={paymentDueTime} 
+                    onValueChange={setPaymentDueTime}
+                  >
+                    <SelectTrigger className="w-full">
+                      <SelectValue placeholder="Select time" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {timeOptions.map(time => (
+                        <SelectItem key={time} value={time}>
+                          {time}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
                 </div>
                 
                 <div className="space-y-2">
