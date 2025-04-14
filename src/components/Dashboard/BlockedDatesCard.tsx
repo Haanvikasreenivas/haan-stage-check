@@ -3,6 +3,7 @@ import React from 'react';
 import { format } from 'date-fns';
 import { Card, CardContent } from '@/components/ui/card';
 import { getContrastTextColor } from '@/utils/colorUtils';
+import { motion } from 'framer-motion';
 
 interface BlockedDatesCardProps {
   project: {
@@ -33,26 +34,35 @@ const BlockedDatesCard: React.FC<BlockedDatesCardProps> = ({ project, dates, onC
   const textColorClass = getContrastTextColor(projectColor);
 
   return (
-    <Card 
-      className="w-full overflow-hidden transition-all duration-300 hover:shadow-md cursor-pointer animate-fade-in rounded-xl hover:translate-y-[-2px]"
-      onClick={onClick}
+    <motion.div
+      initial={{ opacity: 0, y: 10 }}
+      animate={{ opacity: 1, y: 0 }}
+      exit={{ opacity: 0, y: -10 }}
+      transition={{ duration: 0.3 }}
+      whileHover={{ scale: 1.02 }}
+      whileTap={{ scale: 0.98 }}
     >
-      <div 
-        className="h-3 rounded-t-xl"
-        style={{ backgroundColor: projectColor }}
-      />
-      <CardContent className="p-4">
-        <h3 
-          className={`font-medium text-lg mb-1 ${textColorClass === 'text-white' ? 'text-gray-800' : 'text-gray-800'}`}
-        >
-          {project.name}
-        </h3>
-        <p className="text-sm text-gray-600">
-          {dates.length > 1 ? `${dates.length} dates: ` : 'Date: '}
-          {formatDatesCompact(dates)}
-        </p>
-      </CardContent>
-    </Card>
+      <Card 
+        className="w-full overflow-hidden cursor-pointer rounded-xl shadow-sm hover:shadow-md transition-all duration-300"
+        onClick={onClick}
+      >
+        <div 
+          className="h-3 rounded-t-xl"
+          style={{ backgroundColor: projectColor }}
+        />
+        <CardContent className="p-4">
+          <h3 
+            className={`font-medium text-lg mb-1 ${textColorClass === 'text-white' ? 'text-gray-800' : 'text-gray-800'}`}
+          >
+            {project.name}
+          </h3>
+          <p className="text-sm text-gray-600">
+            {dates.length > 1 ? `${dates.length} dates: ` : 'Date: '}
+            {formatDatesCompact(dates)}
+          </p>
+        </CardContent>
+      </Card>
+    </motion.div>
   );
 };
 
