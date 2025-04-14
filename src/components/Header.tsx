@@ -2,7 +2,6 @@
 import React from 'react';
 import { Button } from "@/components/ui/button";
 import { Search, Menu, Bell } from 'lucide-react';
-import Logo from '@/components/Logo';
 
 interface HeaderProps {
   onSearchClick: () => void;
@@ -28,7 +27,6 @@ const Header: React.FC<HeaderProps> = ({
       </Button>
       
       <div className="flex items-center justify-center gap-1 absolute left-1/2 transform -translate-x-1/2">
-        <Logo />
         <span className="font-bold tracking-wide text-xl">HAAN</span>
       </div>
       

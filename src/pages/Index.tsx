@@ -352,6 +352,14 @@ const Index = () => {
       />
       
       <main className="flex-1 container max-w-4xl mx-auto p-4 md:p-6 space-y-6" onClick={() => isSidebarOpen && setIsSidebarOpen(false)}>
+        {profile.name && (
+          <div className="text-center mb-4">
+            <h2 className="text-xl font-medium text-gray-800 flex items-center justify-center">
+              Hey {profile.name.split(' ')[0]} <span className="inline-block ml-1 text-2xl">❤️</span>
+            </h2>
+          </div>
+        )}
+        
         <Calendar 
           onDateClick={handleDateClick} 
           userName={profile.name}
