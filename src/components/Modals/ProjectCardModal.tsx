@@ -1,5 +1,5 @@
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { format } from 'date-fns';
 import { 
   Dialog, 
@@ -70,8 +70,37 @@ const ProjectCardModal: React.FC<ProjectCardModalProps> = ({
   // Payment reminder states with calendar/time selection
   const [includePaymentReminder, setIncludePaymentReminder] = useState(false);
   const [paymentDueDate, setPaymentDueDate] = useState<Date | undefined>(undefined);
-  const [paymentDueTime, setPaymentDueTime] = useState('10:00');
+  const [paymentDueTime, setPaymentDueTime] = useState('10:00 AM');
   const [paymentNotes, setPaymentNotes] = useState('');
+  
+  // For converting between 12-hour and 24-hour formats
+  const [internalTimeValue, setInternalTimeValue] = useState('10:00');
+  
+  // Convert 24-hour time to 12-hour format for display
+  useEffect(() => {
+    if (internalTimeValue) {
+      const [hours, minutes] = internalTimeValue.split(':');
+      const hour = parseInt(hours, 10);
+      const ampm = hour >= 12 ? 'PM' : 'AM';
+      const hour12 = hour % 12 || 12;
+      setPaymentDueTime(`${hour12}:${minutes} ${ampm}`);
+    }
+  }, [internalTimeValue]);
+  
+  // Convert 12-hour time to 24-hour format for internal use
+  const handleTimeChange = (time12h: string) => {
+    const [timePart, ampm] = time12h.split(' ');
+    const [hours, minutes] = timePart.split(':');
+    let hour = parseInt(hours, 10);
+    
+    if (ampm === 'PM' && hour < 12) {
+      hour += 12;
+    } else if (ampm === 'AM' && hour === 12) {
+      hour = 0;
+    }
+    
+    setInternalTimeValue(`${hour.toString().padStart(2, '0')}:${minutes}`);
+  };
 
   const handleDateSelect = (dates: Date[] | undefined) => {
     if (!dates) return;
@@ -92,7 +121,7 @@ const ProjectCardModal: React.FC<ProjectCardModalProps> = ({
           timeUnit: 'days' as const,
           notes: paymentNotes,
           dueDate: paymentDueDate,
-          dueTime: paymentDueTime
+          dueTime: internalTimeValue // Use 24-hour format internally
         }
       } : {})
     };
@@ -209,9 +238,10 @@ const ProjectCardModal: React.FC<ProjectCardModalProps> = ({
                   <Label htmlFor="payment-time">Payment Due Time</Label>
                   <Input
                     id="payment-time"
-                    type="time"
+                    type="text"
                     value={paymentDueTime}
-                    onChange={(e) => setPaymentDueTime(e.target.value)}
+                    onChange={(e) => handleTimeChange(e.target.value)}
+                    placeholder="10:00 AM"
                   />
                 </div>
                 

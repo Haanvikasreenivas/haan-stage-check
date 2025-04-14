@@ -10,6 +10,11 @@ interface PaymentsListProps {
 }
 
 const PaymentsList: React.FC<PaymentsListProps> = ({ payments, onMarkAsReceived }) => {
+  // Function to format time to 12-hour format
+  const formatTo12HourTime = (date: Date) => {
+    return format(date, 'h:mm a'); // This will format to 12-hour time with AM/PM
+  };
+
   return (
     <div className="space-y-4 animate-fade-in">
       <h3 className="text-lg font-medium">Pending Payments</h3>
@@ -32,7 +37,7 @@ const PaymentsList: React.FC<PaymentsListProps> = ({ payments, onMarkAsReceived 
                   )}
                 </div>
                 <div className="text-sm text-gray-700">
-                  {format(payment.dueDate, 'MMM d, yyyy')}
+                  {format(payment.dueDate, 'MMM d, yyyy')} at {formatTo12HourTime(payment.dueDate)}
                 </div>
                 <div className="text-right">
                   <Button 
