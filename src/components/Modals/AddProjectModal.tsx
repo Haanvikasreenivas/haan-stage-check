@@ -115,7 +115,7 @@ const AddProjectModal: React.FC<AddProjectModalProps> = ({
             <Label htmlFor="project-name">Project Name</Label>
             <Input
               id="project-name"
-              placeholder="e.g., Event Gala"
+              placeholder="Enter project name"
               value={name}
               onChange={(e) => setName(e.target.value)}
               className="col-span-3"
@@ -144,7 +144,7 @@ const AddProjectModal: React.FC<AddProjectModalProps> = ({
             <Label htmlFor="project-notes">Notes (Optional)</Label>
             <Textarea
               id="project-notes"
-              placeholder="Studio 5, 10 AM"
+              placeholder="Add notes here"
               value={notes}
               onChange={(e) => setNotes(e.target.value)}
               className="col-span-3"
@@ -191,7 +191,7 @@ const AddProjectModal: React.FC<AddProjectModalProps> = ({
                 <Label htmlFor="payment-notes">Payment Notes (Optional)</Label>
                 <Textarea
                   id="payment-notes"
-                  placeholder="e.g., Call Priya for payout"
+                  placeholder="Add payment notes"
                   value={paymentNotes}
                   onChange={(e) => setPaymentNotes(e.target.value)}
                 />

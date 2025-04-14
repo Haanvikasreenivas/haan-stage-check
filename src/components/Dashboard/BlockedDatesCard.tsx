@@ -40,10 +40,10 @@ const BlockedDatesCard: React.FC<BlockedDatesCardProps> = ({ project, dates, onC
         <h3 
           className={`font-medium text-lg mb-1 ${textColorClass === 'text-white' ? 'text-gray-800' : 'text-gray-800'}`}
         >
-          {project.name.toUpperCase()}
+          {project.name}
         </h3>
         <p className="text-sm text-gray-600">
-          Dates: {formattedDates}
+          {dates.length > 1 ? `${dates.length} dates: ` : 'Date: '}{formattedDates}
         </p>
       </CardContent>
     </Card>

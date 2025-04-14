@@ -126,7 +126,7 @@ const ProjectCardModal: React.FC<ProjectCardModalProps> = ({
               id="name"
               value={name}
               onChange={(e) => setName(e.target.value)}
-              placeholder="e.g. Serial XYZ"
+              placeholder="Enter project name"
               className="animate-fade-in"
             />
           </div>
@@ -155,7 +155,7 @@ const ProjectCardModal: React.FC<ProjectCardModalProps> = ({
               id="notes"
               value={notes}
               onChange={(e) => setNotes(e.target.value)}
-              placeholder="e.g. Studio 7, Contact: John"
+              placeholder="Add notes here"
               className="resize-none animate-fade-in"
             />
           </div>
@@ -221,7 +221,7 @@ const ProjectCardModal: React.FC<ProjectCardModalProps> = ({
                     id="payment-notes"
                     value={paymentNotes}
                     onChange={(e) => setPaymentNotes(e.target.value)}
-                    placeholder="e.g. Call Priya"
+                    placeholder="Add payment notes"
                     className="resize-none"
                   />
                 </div>
