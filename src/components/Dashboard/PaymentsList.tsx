@@ -5,6 +5,8 @@ import { PaymentReminder } from '@/types';
 import { Button } from '@/components/ui/button';
 import { motion, AnimatePresence } from 'framer-motion';
 import { CheckCircle } from 'lucide-react';
+import { useAnimations } from '@/contexts/AnimationContext';
+import { toast } from 'sonner';
 
 interface PaymentsListProps {
   payments: PaymentReminder[];
@@ -12,17 +14,36 @@ interface PaymentsListProps {
 }
 
 const PaymentsList: React.FC<PaymentsListProps> = ({ payments, onMarkAsReceived }) => {
+  const { animationsEnabled } = useAnimations();
+  
   // Function to format time to 12-hour format
   const formatTo12HourTime = (date: Date) => {
     return format(date, 'h:mm a'); // This will format to 12-hour time with AM/PM
   };
 
+  const handleMarkAsReceived = (paymentId: string, projectName: string) => {
+    onMarkAsReceived(paymentId);
+    toast.success(`Payment for ${projectName} marked as received`);
+  };
+
+  // Animation properties based on user preferences
+  const containerAnimation = animationsEnabled ? {
+    initial: { opacity: 0, y: 10 },
+    animate: { opacity: 1, y: 0 },
+    transition: { duration: 0.3 }
+  } : {};
+
+  const itemAnimation = animationsEnabled ? {
+    initial: { opacity: 0, y: 10 },
+    animate: { opacity: 1, y: 0 },
+    exit: { opacity: 0, x: -10 },
+    whileHover: { backgroundColor: 'rgba(249, 250, 251, 0.8)' }
+  } : {};
+
   return (
     <motion.div 
       className="space-y-4"
-      initial={{ opacity: 0, y: 10 }}
-      animate={{ opacity: 1, y: 0 }}
-      transition={{ duration: 0.3 }}
+      {...containerAnimation}
     >
       <h3 className="text-lg font-medium">Pending Payments</h3>
       {payments.length === 0 ? (
@@ -34,11 +55,8 @@ const PaymentsList: React.FC<PaymentsListProps> = ({ payments, onMarkAsReceived 
               <motion.li 
                 key={payment.id} 
                 className="py-4 px-4 hover:bg-gray-50 transition-colors"
-                initial={{ opacity: 0, y: 10 }}
-                animate={{ opacity: 1, y: 0 }}
-                exit={{ opacity: 0, x: -10 }}
+                {...itemAnimation}
                 transition={{ duration: 0.3, delay: index * 0.05 }}
-                whileHover={{ backgroundColor: 'rgba(249, 250, 251, 0.8)' }}
               >
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-2 items-center">
                   <div>
@@ -59,7 +77,7 @@ const PaymentsList: React.FC<PaymentsListProps> = ({ payments, onMarkAsReceived 
                     <Button 
                       variant="outline"
                       size="sm"
-                      onClick={() => onMarkAsReceived(payment.id)}
+                      onClick={() => handleMarkAsReceived(payment.id, payment.projectName)}
                       className="group transition-all duration-300"
                     >
                       <CheckCircle className="mr-2 h-4 w-4 text-gray-400 group-hover:text-green-500 transition-colors" />

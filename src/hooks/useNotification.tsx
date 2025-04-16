@@ -1,62 +1,46 @@
 
-import { useState, useCallback } from 'react';
-import NotificationToast from '@/components/Notifications/NotificationToast';
+import { useCallback } from 'react';
+import { toast } from 'sonner';
+import { useAnimations } from '@/contexts/AnimationContext';
 
 type NotificationType = 'success' | 'info' | 'warning' | 'error';
 
-interface Notification {
-  id: string;
-  message: string;
-  type: NotificationType;
-  duration: number;
-}
-
 export const useNotification = () => {
-  const [notifications, setNotifications] = useState<Notification[]>([]);
+  const { animationsEnabled } = useAnimations();
 
   const showNotification = useCallback((
     message: string, 
     type: NotificationType = 'success', 
-    duration: number = 2000
+    duration: number = animationsEnabled ? 2000 : 3000
   ) => {
-    const id = Math.random().toString(36).substring(2, 9);
+    // Map our notification types to sonner methods
+    switch (type) {
+      case 'success':
+        toast.success(message, { duration });
+        break;
+      case 'info':
+        toast.info(message, { duration });
+        break;
+      case 'warning':
+        toast.warning(message, { duration });
+        break;
+      case 'error':
+        toast.error(message, { duration });
+        break;
+      default:
+        toast(message, { duration });
+    }
     
-    setNotifications(prev => [
-      ...prev,
-      {
-        id,
-        message,
-        type,
-        duration,
-      }
-    ]);
-    
-    return id;
-  }, []);
+    return message; // Return message for potential chaining
+  }, [animationsEnabled]);
 
-  const removeNotification = useCallback((id: string) => {
-    setNotifications(prev => prev.filter(notification => notification.id !== id));
-  }, []);
-
+  // Legacy component support
   const NotificationContainer = () => {
-    return (
-      <>
-        {notifications.map(notification => (
-          <NotificationToast
-            key={notification.id}
-            message={notification.message}
-            duration={notification.duration}
-            type={notification.type}
-            onClose={() => removeNotification(notification.id)}
-          />
-        ))}
-      </>
-    );
+    return null; // This is no longer needed with Sonner
   };
 
   return {
     showNotification,
-    removeNotification,
     NotificationContainer,
   };
 };

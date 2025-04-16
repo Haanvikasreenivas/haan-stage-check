@@ -1,21 +1,24 @@
 
 import React from 'react';
-import { format } from 'date-fns';
+import { format, isSameMonth } from 'date-fns';
 import { Card, CardContent } from '@/components/ui/card';
 import { getContrastTextColor } from '@/utils/colorUtils';
 import { motion } from 'framer-motion';
+import { useAnimations } from '@/contexts/AnimationContext';
 
 interface BlockedDatesCardProps {
   project: {
     id: string;
     name: string;
-    color?: string; // Make color optional
+    color?: string;
   };
   dates: Date[];
   onClick?: () => void;
 }
 
 const BlockedDatesCard: React.FC<BlockedDatesCardProps> = ({ project, dates, onClick }) => {
+  const { animationsEnabled } = useAnimations();
+  
   // Format dates to display in a more compact way
   const formatDatesCompact = (dates: Date[]) => {
     if (!dates.length) return '';
@@ -23,8 +26,38 @@ const BlockedDatesCard: React.FC<BlockedDatesCardProps> = ({ project, dates, onC
     // Sort dates chronologically
     const sortedDates = [...dates].sort((a, b) => a.getTime() - b.getTime());
     
-    // Format each date to just show month and day
-    return sortedDates.map(date => format(date, 'MMM d')).join(', ');
+    // Group consecutive dates
+    const groups: Date[][] = [];
+    let currentGroup: Date[] = [];
+    
+    sortedDates.forEach((date, index) => {
+      if (index === 0) {
+        currentGroup.push(date);
+      } else {
+        const prevDate = sortedDates[index - 1];
+        const diffDays = Math.round((date.getTime() - prevDate.getTime()) / (1000 * 60 * 60 * 24));
+        
+        if (diffDays === 1 && isSameMonth(date, prevDate)) {
+          currentGroup.push(date);
+        } else {
+          groups.push([...currentGroup]);
+          currentGroup = [date];
+        }
+      }
+    });
+    
+    if (currentGroup.length > 0) {
+      groups.push(currentGroup);
+    }
+    
+    // Format each group
+    return groups.map(group => {
+      if (group.length === 1) {
+        return format(group[0], 'MMM d');
+      } else {
+        return `${format(group[0], 'MMM d')}–${format(group[group.length - 1], 'd')}`;
+      }
+    }).join(', ');
   };
 
   // Default color if none is provided
@@ -33,15 +66,18 @@ const BlockedDatesCard: React.FC<BlockedDatesCardProps> = ({ project, dates, onC
   // Get contrasting text color for the project name
   const textColorClass = getContrastTextColor(projectColor);
 
+  // Card animation properties
+  const animationProps = animationsEnabled ? {
+    initial: { opacity: 0, y: 10 },
+    animate: { opacity: 1, y: 0 },
+    exit: { opacity: 0, y: -10 },
+    transition: { duration: 0.3 },
+    whileHover: { scale: 1.02 },
+    whileTap: { scale: 0.98 }
+  } : {};
+
   return (
-    <motion.div
-      initial={{ opacity: 0, y: 10 }}
-      animate={{ opacity: 1, y: 0 }}
-      exit={{ opacity: 0, y: -10 }}
-      transition={{ duration: 0.3 }}
-      whileHover={{ scale: 1.02 }}
-      whileTap={{ scale: 0.98 }}
-    >
+    <motion.div {...animationProps}>
       <Card 
         className="w-full overflow-hidden cursor-pointer rounded-xl shadow-sm hover:shadow-md transition-all duration-300"
         onClick={onClick}
