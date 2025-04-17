@@ -20,6 +20,7 @@ const App = () => (
           position="top-center"
           closeButton
           richColors
+          className="z-50"
         />
         <BrowserRouter>
           <AnimatePresence mode="wait">
