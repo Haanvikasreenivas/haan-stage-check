@@ -1,6 +1,6 @@
 
 import React from 'react';
-import { format, isSameMonth } from 'date-fns';
+import { format, isSameMonth, parse } from 'date-fns';
 import { Card, CardContent } from '@/components/ui/card';
 import { getContrastTextColor } from '@/utils/colorUtils';
 import { motion } from 'framer-motion';
@@ -71,7 +71,7 @@ const BlockedDatesCard: React.FC<BlockedDatesCardProps> = ({ project, dates, onC
     initial: { opacity: 0, y: 10 },
     animate: { opacity: 1, y: 0 },
     exit: { opacity: 0, y: -10 },
-    transition: { duration: 0.3 },
+    transition: { duration: 0.2 },
     whileHover: { scale: 1.02 },
     whileTap: { scale: 0.98 }
   } : {};
@@ -79,7 +79,7 @@ const BlockedDatesCard: React.FC<BlockedDatesCardProps> = ({ project, dates, onC
   return (
     <motion.div {...animationProps}>
       <Card 
-        className="w-full overflow-hidden cursor-pointer rounded-xl shadow-sm hover:shadow-md transition-all duration-300"
+        className="w-full overflow-hidden cursor-pointer rounded-xl shadow-sm hover:shadow-md transition-all duration-200"
         onClick={onClick}
       >
         <div 
@@ -93,8 +93,7 @@ const BlockedDatesCard: React.FC<BlockedDatesCardProps> = ({ project, dates, onC
             {project.name}
           </h3>
           <p className="text-sm text-gray-600">
-            {dates.length > 1 ? `${dates.length} dates: ` : 'Date: '}
-            {formatDatesCompact(dates)}
+            {dates.length > 0 ? formatDatesCompact(dates) : 'No dates'}
           </p>
         </CardContent>
       </Card>

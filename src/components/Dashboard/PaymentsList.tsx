@@ -16,7 +16,7 @@ interface PaymentsListProps {
 const PaymentsList: React.FC<PaymentsListProps> = ({ payments, onMarkAsReceived }) => {
   const { animationsEnabled } = useAnimations();
   
-  // Function to format time to 12-hour format
+  // Function to format time to 12-hour format with AM/PM
   const formatTo12HourTime = (date: Date) => {
     return format(date, 'h:mm a'); // This will format to 12-hour time with AM/PM
   };

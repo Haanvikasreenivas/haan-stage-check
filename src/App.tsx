@@ -20,10 +20,6 @@ const App = () => (
           position="top-center"
           closeButton
           richColors
-          toastOptions={{
-            duration: 2000,
-            className: "animate-fade-in"
-          }}
         />
         <BrowserRouter>
           <AnimatePresence mode="wait">

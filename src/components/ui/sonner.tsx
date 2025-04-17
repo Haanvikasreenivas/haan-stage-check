@@ -23,7 +23,7 @@ const Toaster = ({ ...props }: ToasterProps) => {
           cancelButton:
             "group-[.toast]:bg-muted group-[.toast]:text-muted-foreground",
         },
-        duration: animationsEnabled ? 2000 : 3000, // Longer duration when animations are disabled
+        duration: 2000,
         className: animationsEnabled ? "animate-fade-in" : "",
       }}
       {...props}

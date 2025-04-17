@@ -15,12 +15,12 @@ import { Textarea } from '@/components/ui/textarea';
 import { Label } from '@/components/ui/label';
 import { Calendar } from '@/components/ui/calendar';
 import { Project } from '@/types';
-import { useToast } from '@/hooks/use-toast';
+import { toast } from 'sonner';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Clock, Plus, Minus } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
-import { Slider } from '@/components/ui/slider';
+import { useAnimations } from '@/contexts/AnimationContext';
 
 // Predefined color palette
 const colorPalette = [
@@ -41,7 +41,8 @@ const quickTimeOptions = [
   { label: "Now", value: "now" },
   { label: "+1 Hour", value: "plus1" },
   { label: "10:00 AM", value: "10:00 AM" },
-  { label: "2:00 PM", value: "2:00 PM" }
+  { label: "2:00 PM", value: "2:00 PM" },
+  { label: "5:00 PM", value: "5:00 PM" }
 ];
 
 interface ProjectCardModalProps {
@@ -73,7 +74,7 @@ const ProjectCardModal: React.FC<ProjectCardModalProps> = ({
   selectedDates = [],
   onSave,
 }) => {
-  const { toast } = useToast();
+  const { animationsEnabled } = useAnimations();
   const [name, setName] = useState(existingProject?.name || '');
   const [notes, setNotes] = useState(existingProject?.notes || '');
   const [color, setColor] = useState(existingProject?.color || colorPalette[0]);
@@ -96,21 +97,30 @@ const ProjectCardModal: React.FC<ProjectCardModalProps> = ({
   // Parse existing time when component mounts
   useEffect(() => {
     if (paymentDueTime) {
-      const timeMatch = paymentDueTime.match(/(\d+):(\d+)\s(AM|PM)/i);
-      if (timeMatch) {
-        const [_, hourStr, minuteStr, periodStr] = timeMatch;
-        setHours(parseInt(hourStr, 10));
-        setMinutes(parseInt(minuteStr, 10));
-        setPeriod(periodStr.toUpperCase() as 'AM' | 'PM');
+      try {
+        const timeMatch = paymentDueTime.match(/(\d+):(\d+)\s(AM|PM)/i);
+        if (timeMatch) {
+          const [_, hourStr, minuteStr, periodStr] = timeMatch;
+          setHours(parseInt(hourStr, 10));
+          setMinutes(parseInt(minuteStr, 10));
+          setPeriod(periodStr.toUpperCase() as 'AM' | 'PM');
+        }
+      } catch (error) {
+        console.error("Error parsing time:", error);
       }
     }
   }, [paymentDueTime]);
 
   // Update time string when time components change
   useEffect(() => {
-    const formattedHours = hours === 0 ? 12 : hours > 12 ? hours - 12 : hours;
-    const formattedTime = `${formattedHours}:${minutes.toString().padStart(2, '0')} ${period}`;
-    setPaymentDueTime(formattedTime);
+    try {
+      // Hours in 12-hour format should be 1-12, never 0
+      const formattedHours = hours === 0 ? 12 : hours > 12 ? hours - 12 : hours;
+      const formattedTime = `${formattedHours}:${minutes.toString().padStart(2, '0')} ${period}`;
+      setPaymentDueTime(formattedTime);
+    } catch (error) {
+      console.error("Error formatting time:", error);
+    }
   }, [hours, minutes, period]);
 
   const handleDateSelect = (dates: Date[] | undefined) => {
@@ -139,6 +149,10 @@ const ProjectCardModal: React.FC<ProjectCardModalProps> = ({
       setPeriod('AM');
     } else if (option === '2:00 PM') {
       setHours(2);
+      setMinutes(0);
+      setPeriod('PM');
+    } else if (option === '5:00 PM') {
+      setHours(5);
       setMinutes(0);
       setPeriod('PM');
     }
@@ -206,11 +220,8 @@ const ProjectCardModal: React.FC<ProjectCardModalProps> = ({
     onSave(projectData);
     
     // Show toast with fade out animation
-    toast({
-      title: "Dates blocked!",
-      description: `${name} has been added to ${selectedDateArray.length} dates.`,
-      className: "animate-fade-in",
-      duration: 2000, 
+    toast.success(`${selectedDateArray.length} dates blocked for ${name}`, { 
+      duration: 2000,
     });
   };
 

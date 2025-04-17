@@ -34,13 +34,5 @@ export const useNotification = () => {
     return message; // Return message for potential chaining
   }, [animationsEnabled]);
 
-  // Legacy component support
-  const NotificationContainer = () => {
-    return null; // This is no longer needed with Sonner
-  };
-
-  return {
-    showNotification,
-    NotificationContainer,
-  };
+  return { showNotification };
 };
