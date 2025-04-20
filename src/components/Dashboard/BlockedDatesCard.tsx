@@ -1,16 +1,19 @@
 
 import React from 'react';
-import { format, isSameMonth, parse } from 'date-fns';
+import { format, isSameMonth } from 'date-fns';
 import { Card, CardContent } from '@/components/ui/card';
 import { getContrastTextColor } from '@/utils/colorUtils';
 import { motion } from 'framer-motion';
 import { useAnimations } from '@/contexts/AnimationContext';
+import { Calendar, Clock, MapPin } from 'lucide-react';
+import { toast } from 'sonner';
 
 interface BlockedDatesCardProps {
   project: {
     id: string;
     name: string;
     color?: string;
+    notes?: string;
   };
   dates: Date[];
   onClick?: () => void;
@@ -60,41 +63,53 @@ const BlockedDatesCard: React.FC<BlockedDatesCardProps> = ({ project, dates, onC
     }).join(', ');
   };
 
-  // Default color if none is provided
-  const projectColor = project.color || '#000000';
-  
-  // Get contrasting text color for the project name
-  const textColorClass = getContrastTextColor(projectColor);
-
   // Card animation properties
   const animationProps = animationsEnabled ? {
-    initial: { opacity: 0, y: 10 },
+    initial: { opacity: 0, y: 20 },
     animate: { opacity: 1, y: 0 },
-    exit: { opacity: 0, y: -10 },
-    transition: { duration: 0.2 },
-    whileHover: { scale: 1.02 },
+    exit: { opacity: 0, y: -20 },
+    whileHover: { scale: 1.02, transition: { duration: 0.2 } },
     whileTap: { scale: 0.98 }
   } : {};
+
+  const handleClick = () => {
+    onClick?.();
+    toast.success(`Viewing ${project.name}`);
+  };
 
   return (
     <motion.div {...animationProps}>
       <Card 
-        className="w-full overflow-hidden cursor-pointer rounded-xl shadow-sm hover:shadow-md transition-all duration-200"
-        onClick={onClick}
+        className="overflow-hidden cursor-pointer group"
+        onClick={handleClick}
       >
         <div 
-          className="h-3 rounded-t-xl"
-          style={{ backgroundColor: projectColor }}
+          className="h-2 transition-all duration-200 group-hover:h-3"
+          style={{ backgroundColor: project.color || '#000000' }}
         />
-        <CardContent className="p-4">
-          <h3 
-            className={`font-medium text-lg mb-1 ${textColorClass === 'text-white' ? 'text-gray-800' : 'text-gray-800'}`}
-          >
-            {project.name}
-          </h3>
-          <p className="text-sm text-gray-600">
-            {dates.length > 0 ? formatDatesCompact(dates) : 'No dates'}
+        <CardContent className="p-4 space-y-3">
+          <div className="flex items-start justify-between">
+            <h3 className="font-medium text-lg text-gray-900 group-hover:text-gray-700 transition-colors">
+              {project.name}
+            </h3>
+            <Calendar className="w-5 h-5 text-gray-400 group-hover:text-gray-600 transition-colors" />
+          </div>
+          
+          <div className="flex items-center text-sm text-gray-600">
+            <Clock className="w-4 h-4 mr-2" />
+            <p>{dates.length} {dates.length === 1 ? 'date' : 'dates'} blocked</p>
+          </div>
+          
+          <p className="text-sm text-gray-600 leading-relaxed">
+            {formatDatesCompact(dates)}
           </p>
+          
+          {project.notes && (
+            <div className="flex items-start pt-2">
+              <MapPin className="w-4 h-4 mr-2 text-gray-400 mt-0.5" />
+              <p className="text-sm text-gray-500">{project.notes}</p>
+            </div>
+          )}
         </CardContent>
       </Card>
     </motion.div>
