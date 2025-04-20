@@ -16,15 +16,20 @@ import { Label } from '@/components/ui/label';
 import { Calendar } from '@/components/ui/calendar';
 import { Project } from '@/types';
 import { toast } from 'sonner';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { Clock, Plus, Minus } from 'lucide-react';
+import { 
+  Select, 
+  SelectContent, 
+  SelectItem, 
+  SelectTrigger, 
+  SelectValue 
+} from '@/components/ui/select';
+import { Clock, Plus, Minus, CheckCircle2 } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 import { useAnimations } from '@/contexts/AnimationContext';
 
-// Predefined color palette
+// Predefined color palette - updated with more vibrant colors
 const colorPalette = [
-  '#000000', // Black
   '#3B82F6', // Blue
   '#10B981', // Green
   '#F59E0B', // Amber
@@ -32,17 +37,18 @@ const colorPalette = [
   '#8B5CF6', // Purple
   '#EC4899', // Pink
   '#06B6D4', // Cyan
+  '#000000', // Black
   '#6B7280', // Gray
-  '#1F2937', // Dark Gray
+  '#F97316', // Orange
 ];
 
 // Quick time options
 const quickTimeOptions = [
   { label: "Now", value: "now" },
   { label: "+1 Hour", value: "plus1" },
-  { label: "10:00 AM", value: "10:00 AM" },
-  { label: "2:00 PM", value: "2:00 PM" },
-  { label: "5:00 PM", value: "5:00 PM" }
+  { label: "Morning", value: "9:00 AM" },
+  { label: "Noon", value: "12:00 PM" },
+  { label: "Evening", value: "6:00 PM" }
 ];
 
 interface ProjectCardModalProps {
@@ -143,16 +149,16 @@ const ProjectCardModal: React.FC<ProjectCardModalProps> = ({
       setHours(hourLater > 12 ? hourLater - 12 : hourLater === 0 ? 12 : hourLater);
       setMinutes(Math.floor(now.getMinutes() / 5) * 5); // Round to nearest 5 minutes
       setPeriod(oneHourLater.getHours() >= 12 ? 'PM' : 'AM');
-    } else if (option === '10:00 AM') {
-      setHours(10);
+    } else if (option === '9:00 AM') {
+      setHours(9);
       setMinutes(0);
       setPeriod('AM');
-    } else if (option === '2:00 PM') {
-      setHours(2);
+    } else if (option === '12:00 PM') {
+      setHours(12);
       setMinutes(0);
       setPeriod('PM');
-    } else if (option === '5:00 PM') {
-      setHours(5);
+    } else if (option === '6:00 PM') {
+      setHours(6);
       setMinutes(0);
       setPeriod('PM');
     }
@@ -219,9 +225,11 @@ const ProjectCardModal: React.FC<ProjectCardModalProps> = ({
     
     onSave(projectData);
     
-    // Show toast with fade out animation
+    // Show toast with improved animation
     toast.success(`${selectedDateArray.length} dates blocked for ${name}`, { 
       duration: 2000,
+      icon: <CheckCircle2 className="h-4 w-4 text-green-500" />,
+      position: "top-center"
     });
   };
 
@@ -231,7 +239,7 @@ const ProjectCardModal: React.FC<ProjectCardModalProps> = ({
     <Dialog open={isOpen} onOpenChange={(open) => !open && onClose()}>
       <DialogContent className="sm:max-w-md max-h-[90vh] overflow-y-auto animate-fade-in">
         <DialogHeader>
-          <DialogTitle>
+          <DialogTitle className="text-xl">
             {existingProject ? 'Edit Project' : 'Block Dates'}
           </DialogTitle>
           <DialogDescription>
@@ -250,7 +258,7 @@ const ProjectCardModal: React.FC<ProjectCardModalProps> = ({
             initial={{ opacity: 0, y: 10 }}
             animate={{ opacity: 1, y: 0 }}
           >
-            <Label htmlFor="name">Project Name</Label>
+            <Label htmlFor="name" className="text-sm font-medium">Project Name</Label>
             <Input
               id="name"
               value={name}
@@ -266,21 +274,31 @@ const ProjectCardModal: React.FC<ProjectCardModalProps> = ({
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.1 }}
           >
-            <Label>Color</Label>
-            <div className="flex flex-wrap gap-2">
+            <Label className="text-sm font-medium">Project Color</Label>
+            <div className="flex flex-wrap gap-3 py-2">
               {colorPalette.map((paletteColor) => (
                 <motion.button
                   key={paletteColor}
                   type="button"
-                  className={`w-8 h-8 rounded-full transition-transform ${
-                    color === paletteColor ? 'ring-2 ring-primary ring-offset-2 scale-110' : ''
-                  } hover:scale-105`}
+                  className={`w-10 h-10 rounded-full transition-all duration-200 ${
+                    color === paletteColor ? 'ring-4 ring-primary/30 ring-offset-2 scale-110' : ''
+                  } hover:scale-105 shadow-sm`}
                   style={{ backgroundColor: paletteColor }}
                   onClick={() => setColor(paletteColor)}
                   aria-label={`Select color ${paletteColor}`}
                   whileHover={{ scale: 1.1 }}
                   whileTap={{ scale: 0.9 }}
-                />
+                >
+                  {color === paletteColor && (
+                    <motion.span 
+                      initial={{ scale: 0 }}
+                      animate={{ scale: 1 }}
+                      className="flex items-center justify-center"
+                    >
+                      <CheckCircle2 className={`h-5 w-5 ${paletteColor === '#FFFFFF' ? 'text-black' : 'text-white'}`} />
+                    </motion.span>
+                  )}
+                </motion.button>
               ))}
             </div>
           </motion.div>
@@ -291,7 +309,7 @@ const ProjectCardModal: React.FC<ProjectCardModalProps> = ({
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.2 }}
           >
-            <Label htmlFor="notes">Notes (Optional)</Label>
+            <Label htmlFor="notes" className="text-sm font-medium">Notes (Optional)</Label>
             <Textarea
               id="notes"
               value={notes}
@@ -307,14 +325,14 @@ const ProjectCardModal: React.FC<ProjectCardModalProps> = ({
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.3 }}
           >
-            <Label>Selected Dates</Label>
-            <div className="text-sm">
+            <Label className="text-sm font-medium">Selected Dates</Label>
+            <div className="text-sm bg-gray-50 p-2 rounded-md border border-gray-100">
               {selectedDateArray.length > 0 
                 ? selectedDateArray.map(d => format(d, 'MMM d, yyyy')).join(', ')
                 : 'No dates selected'}
             </div>
             
-            <div className="border rounded-md p-2 mt-2">
+            <div className="border rounded-md p-2 mt-2 bg-white shadow-sm">
               <Calendar
                 mode="multiple"
                 selected={selectedDateArray}
@@ -325,34 +343,34 @@ const ProjectCardModal: React.FC<ProjectCardModalProps> = ({
           </motion.div>
 
           <motion.div 
-            className="space-y-2"
+            className="space-y-2 pt-2"
             initial={{ opacity: 0, y: 10 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.4 }}
           >
-            <div className="flex items-center space-x-2">
+            <div className="flex items-center space-x-2 bg-blue-50 p-3 rounded-md border border-blue-100">
               <input
                 type="checkbox"
                 id="payment-reminder"
                 checked={includePaymentReminder}
                 onChange={(e) => setIncludePaymentReminder(e.target.checked)}
-                className="rounded border-gray-300"
+                className="rounded border-gray-300 text-blue-500 focus:ring-blue-500"
               />
-              <Label htmlFor="payment-reminder">Set Payment Reminder</Label>
+              <Label htmlFor="payment-reminder" className="font-medium text-blue-700">Set Payment Reminder</Label>
             </div>
             
             <AnimatePresence>
               {includePaymentReminder && (
                 <motion.div 
-                  className="pl-6 space-y-3"
+                  className="pl-6 space-y-4 border-l-2 border-blue-200 mt-3"
                   initial={{ opacity: 0, height: 0 }}
                   animate={{ opacity: 1, height: 'auto' }}
                   exit={{ opacity: 0, height: 0 }}
                   transition={{ duration: 0.3 }}
                 >
                   <div className="space-y-2">
-                    <Label htmlFor="payment-date">Payment Due Date</Label>
-                    <div className="border rounded-md p-2">
+                    <Label htmlFor="payment-date" className="text-sm font-medium">Payment Due Date</Label>
+                    <div className="border rounded-md p-2 bg-white shadow-sm">
                       <Calendar
                         mode="single"
                         selected={paymentDueDate}
@@ -364,12 +382,12 @@ const ProjectCardModal: React.FC<ProjectCardModalProps> = ({
                   </div>
                   
                   <div className="space-y-2">
-                    <Label htmlFor="payment-time">Payment Due Time</Label>
+                    <Label htmlFor="payment-time" className="text-sm font-medium">Payment Due Time</Label>
                     <Popover open={isTimePickerOpen} onOpenChange={setIsTimePickerOpen}>
                       <PopoverTrigger asChild>
                         <Button 
                           variant="outline" 
-                          className="w-full flex justify-between items-center"
+                          className="w-full flex justify-between items-center bg-white"
                           onClick={() => setIsTimePickerOpen(true)}
                         >
                           <span>{paymentDueTime}</span>
@@ -389,25 +407,25 @@ const ProjectCardModal: React.FC<ProjectCardModalProps> = ({
                             </Button>
                           </div>
                           
-                          <div className="flex justify-center items-center gap-2">
+                          <div className="flex justify-center items-center gap-2 bg-blue-50 rounded-xl p-4">
                             {/* Hour selector */}
                             <div className="flex flex-col items-center">
                               <Button 
-                                variant="ghost" 
+                                variant="outline" 
                                 size="sm" 
                                 onClick={incrementHour}
-                                className="px-2"
+                                className="rounded-full w-8 h-8 p-0 flex items-center justify-center bg-white"
                               >
                                 <Plus size={16} />
                               </Button>
-                              <div className="text-2xl font-bold w-12 text-center">
+                              <div className="text-2xl font-bold w-12 text-center my-2">
                                 {hours.toString().padStart(2, '0')}
                               </div>
                               <Button 
-                                variant="ghost" 
+                                variant="outline" 
                                 size="sm" 
                                 onClick={decrementHour}
-                                className="px-2"
+                                className="rounded-full w-8 h-8 p-0 flex items-center justify-center bg-white"
                               >
                                 <Minus size={16} />
                               </Button>
@@ -418,33 +436,33 @@ const ProjectCardModal: React.FC<ProjectCardModalProps> = ({
                             {/* Minute selector */}
                             <div className="flex flex-col items-center">
                               <Button 
-                                variant="ghost" 
+                                variant="outline" 
                                 size="sm" 
                                 onClick={incrementMinute}
-                                className="px-2"
+                                className="rounded-full w-8 h-8 p-0 flex items-center justify-center bg-white"
                               >
                                 <Plus size={16} />
                               </Button>
-                              <div className="text-2xl font-bold w-12 text-center">
+                              <div className="text-2xl font-bold w-12 text-center my-2">
                                 {minutes.toString().padStart(2, '0')}
                               </div>
                               <Button 
-                                variant="ghost" 
+                                variant="outline" 
                                 size="sm" 
                                 onClick={decrementMinute}
-                                className="px-2"
+                                className="rounded-full w-8 h-8 p-0 flex items-center justify-center bg-white"
                               >
                                 <Minus size={16} />
                               </Button>
                             </div>
                             
                             {/* AM/PM selector */}
-                            <div className="flex flex-col items-center">
+                            <div className="flex flex-col items-center ml-2">
                               <Button 
                                 variant={period === 'AM' ? "default" : "outline"} 
                                 size="sm" 
                                 onClick={() => setPeriod('AM')}
-                                className="px-2 mb-1"
+                                className={`px-3 mb-1 transition-all duration-200 ${period === 'AM' ? 'shadow-md' : 'bg-white'}`}
                               >
                                 AM
                               </Button>
@@ -452,21 +470,21 @@ const ProjectCardModal: React.FC<ProjectCardModalProps> = ({
                                 variant={period === 'PM' ? "default" : "outline"} 
                                 size="sm" 
                                 onClick={() => setPeriod('PM')}
-                                className="px-2"
+                                className={`px-3 transition-all duration-200 ${period === 'PM' ? 'shadow-md' : 'bg-white'}`}
                               >
                                 PM
                               </Button>
                             </div>
                           </div>
                           
-                          <div className="grid grid-cols-2 gap-2 pt-2">
+                          <div className="grid grid-cols-3 gap-2 pt-2">
                             {quickTimeOptions.map(option => (
                               <Button 
                                 key={option.value}
                                 variant="outline" 
                                 size="sm" 
                                 onClick={() => handleQuickTimeOption(option.value)}
-                                className="w-full"
+                                className="w-full bg-white"
                               >
                                 {option.label}
                               </Button>
@@ -478,13 +496,13 @@ const ProjectCardModal: React.FC<ProjectCardModalProps> = ({
                   </div>
                   
                   <div className="space-y-2">
-                    <Label htmlFor="payment-notes">Payment Notes (Optional)</Label>
+                    <Label htmlFor="payment-notes" className="text-sm font-medium">Payment Notes (Optional)</Label>
                     <Textarea
                       id="payment-notes"
                       value={paymentNotes}
                       onChange={(e) => setPaymentNotes(e.target.value)}
                       placeholder="Add payment notes"
-                      className="resize-none"
+                      className="resize-none bg-white"
                     />
                   </div>
                 </motion.div>
@@ -493,16 +511,16 @@ const ProjectCardModal: React.FC<ProjectCardModalProps> = ({
           </motion.div>
         </motion.div>
 
-        <DialogFooter>
+        <DialogFooter className="gap-2 sm:gap-0">
           <Button variant="outline" onClick={onClose} className="hover:bg-gray-100 transition-colors">
             Cancel
           </Button>
           <Button 
             onClick={handleSubmit} 
             disabled={!name.trim() || selectedDateArray.length === 0}
-            className="hover:bg-primary/90 transition-colors animate-fade-in"
+            className="bg-gradient-to-r from-blue-500 to-blue-600 hover:from-blue-600 hover:to-blue-700 transition-all shadow-md hover:shadow-lg"
           >
-            {existingProject ? 'Update' : 'Block Dates'}
+            {existingProject ? 'Update Project' : 'Block Dates'}
           </Button>
         </DialogFooter>
       </DialogContent>
