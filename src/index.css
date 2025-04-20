@@ -304,38 +304,58 @@
   font-weight: bold;
 }
 
-/* Calendar day hover effect */
+/* Calendar Animations */
+.calendar-enter {
+  opacity: 0;
+  transform: scale(0.9);
+}
+
+.calendar-enter-active {
+  opacity: 1;
+  transform: scale(1);
+  transition: opacity 300ms, transform 300ms;
+}
+
+.calendar-exit {
+  opacity: 1;
+  transform: scale(1);
+}
+
+.calendar-exit-active {
+  opacity: 0;
+  transform: scale(0.9);
+  transition: opacity 300ms, transform 300ms;
+}
+
 .calendar-day {
-  transition: transform var(--animation-duration-fast) ease-out;
+  transition: all 0.2s ease-in-out;
 }
 
 .calendar-day:hover {
-  transform: scale(1.1);
+  background-color: rgba(0, 0, 0, 0.05);
 }
 
 .calendar-day.selected {
-  animation: calendarDaySelected var(--animation-duration-fast) var(--animation-easing);
+  background-color: var(--primary);
+  color: white;
 }
 
-@keyframes calendarDaySelected {
-  0% {
-    transform: scale(1);
-  }
-  50% {
-    transform: scale(1.1);
-  }
-  100% {
-    transform: scale(1);
-  }
+.calendar-month-transition {
+  transition: transform 0.3s ease-in-out;
 }
 
-/* Card hover animation */
-.card-hover-effect {
-  transition: transform var(--animation-duration-normal) var(--animation-easing),
-              box-shadow var(--animation-duration-normal) var(--animation-easing);
+.calendar-month-enter {
+  transform: translateX(100%);
 }
 
-.card-hover-effect:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+.calendar-month-enter-active {
+  transform: translateX(0%);
+}
+
+.calendar-month-exit {
+  transform: translateX(-100%);
+}
+
+.calendar-month-exit-active {
+  transform: translateX(0%);
 }
