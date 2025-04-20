@@ -1,4 +1,3 @@
-
 import React from 'react';
 import { format } from 'date-fns';
 import { motion } from 'framer-motion';
@@ -36,7 +35,7 @@ const CalendarDayCell: React.FC<CalendarDayCellProps> = ({
   const isCanceled = project?.status === 'canceled';
 
   const cellClasses = cn(
-    'calendar-day relative flex items-center justify-center h-12 w-12 cursor-pointer rounded-xl transition-all duration-200',
+    'calendar-day relative flex flex-col items-center justify-center h-16 w-full cursor-pointer rounded-xl transition-all duration-200 p-1',
     isToday && !isBlocked && 'ring-2 ring-primary ring-offset-2',
     !isCurrentMonth && 'text-gray-400',
     isBlocked && 'text-white',
@@ -55,21 +54,19 @@ const CalendarDayCell: React.FC<CalendarDayCellProps> = ({
         color: getContrastTextColor(project.color || '#000000')
       } : undefined}
     >
-      <div className="calendar-day-content flex flex-col items-center justify-center">
-        <span className="text-sm font-medium">{format(date, 'd')}</span>
-        {project && (
-          <motion.div
-            initial={{ scale: 0 }}
-            animate={{ scale: 1 }}
-            className="text-xs mt-0.5 truncate max-w-[90%]"
-            style={isBlocked ? {
-              color: getContrastTextColor(project.color || '#000000')
-            } : undefined}
-          >
-            {project.name}
-          </motion.div>
-        )}
-      </div>
+      <span className="text-sm font-medium">{format(date, 'd')}</span>
+      {project && (
+        <motion.div
+          initial={{ scale: 0 }}
+          animate={{ scale: 1 }}
+          className="text-[10px] mt-0.5 truncate w-full text-center"
+          style={isBlocked ? {
+            color: getContrastTextColor(project.color || '#000000')
+          } : undefined}
+        >
+          {project.name}
+        </motion.div>
+      )}
     </motion.div>
   );
 };

@@ -5,8 +5,7 @@ import { Card, CardContent } from '@/components/ui/card';
 import { getContrastTextColor } from '@/utils/colorUtils';
 import { motion } from 'framer-motion';
 import { useAnimations } from '@/contexts/AnimationContext';
-import { Calendar, Clock, MapPin, CheckCircle2 } from 'lucide-react';
-import { toast } from 'sonner';
+import { Calendar, MapPin } from 'lucide-react';
 
 interface BlockedDatesCardProps {
   project: {
@@ -31,23 +30,20 @@ const BlockedDatesCard: React.FC<BlockedDatesCardProps> = ({ project, dates, onC
     
     // Group consecutive dates
     const groups: Date[][] = [];
-    let currentGroup: Date[] = [];
+    let currentGroup: Date[] = [sortedDates[0]];
     
-    sortedDates.forEach((date, index) => {
-      if (index === 0) {
-        currentGroup.push(date);
+    for (let i = 1; i < sortedDates.length; i++) {
+      const currentDate = sortedDates[i];
+      const prevDate = sortedDates[i - 1];
+      const diffDays = Math.round((currentDate.getTime() - prevDate.getTime()) / (1000 * 60 * 60 * 24));
+      
+      if (diffDays === 1 && isSameMonth(currentDate, prevDate)) {
+        currentGroup.push(currentDate);
       } else {
-        const prevDate = sortedDates[index - 1];
-        const diffDays = Math.round((date.getTime() - prevDate.getTime()) / (1000 * 60 * 60 * 24));
-        
-        if (diffDays === 1 && isSameMonth(date, prevDate)) {
-          currentGroup.push(date);
-        } else {
-          groups.push([...currentGroup]);
-          currentGroup = [date];
-        }
+        groups.push([...currentGroup]);
+        currentGroup = [currentDate];
       }
-    });
+    }
     
     if (currentGroup.length > 0) {
       groups.push(currentGroup);
@@ -63,22 +59,12 @@ const BlockedDatesCard: React.FC<BlockedDatesCardProps> = ({ project, dates, onC
     }).join(', ');
   };
 
-  // Card animation properties
   const animationProps = animationsEnabled ? {
     initial: { opacity: 0, y: 20, scale: 0.95 },
     animate: { opacity: 1, y: 0, scale: 1 },
-    exit: { opacity: 0, y: -20, scale: 0.95 },
-    whileHover: { scale: 1.03, transition: { duration: 0.2 } },
-    whileTap: { scale: 0.97 }
+    whileHover: { scale: 1.02, transition: { duration: 0.2 } },
+    whileTap: { scale: 0.98 }
   } : {};
-
-  const handleClick = () => {
-    onClick?.();
-    toast.success(`Viewing ${project.name}`, {
-      icon: <CheckCircle2 className="h-4 w-4 text-green-500" />,
-      position: "top-center"
-    });
-  };
 
   const calculateGradient = (color: string) => {
     return `linear-gradient(135deg, ${color}, ${color}dd)`;
@@ -88,7 +74,7 @@ const BlockedDatesCard: React.FC<BlockedDatesCardProps> = ({ project, dates, onC
     <motion.div {...animationProps}>
       <Card 
         className="overflow-hidden cursor-pointer group shadow-md hover:shadow-lg transition-all duration-300"
-        onClick={handleClick}
+        onClick={onClick}
       >
         <div 
           className="h-3 transition-all duration-300 group-hover:h-4"
@@ -108,7 +94,6 @@ const BlockedDatesCard: React.FC<BlockedDatesCardProps> = ({ project, dates, onC
           </div>
           
           <div className="flex items-center text-sm text-gray-600">
-            <Clock className="w-4 h-4 mr-2" />
             <p className="font-medium">{dates.length} {dates.length === 1 ? 'date' : 'dates'} blocked</p>
           </div>
           

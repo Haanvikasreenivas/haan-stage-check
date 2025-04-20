@@ -2,7 +2,6 @@
 import React, { useState } from 'react';
 import { cn } from "@/lib/utils";
 import { motion } from "framer-motion";
-import { format } from 'date-fns';
 import BlockedDatesCard from '@/components/Dashboard/BlockedDatesCard';
 import { useCalendarData } from '@/hooks/useCalendarData';
 import { Calendar, CheckCircle2 } from 'lucide-react';
@@ -29,7 +28,6 @@ const BlockedDates = () => {
   };
 
   const handleCardClick = (projectId: string, projectName: string) => {
-    // In a real app, you could navigate to a project detail page
     toast.success(`Viewing details for ${projectName}`, {
       icon: <CheckCircle2 className="h-4 w-4" />,
       position: "top-center"
@@ -106,7 +104,7 @@ const BlockedDates = () => {
 
         {filteredProjects.length > 0 ? (
           <motion.div 
-            className="grid grid-cols-1 md:grid-cols-2 gap-4"
+            className="grid grid-cols-1 gap-4"
             variants={container}
             initial="hidden"
             animate="show"
