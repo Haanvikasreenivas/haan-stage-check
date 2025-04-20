@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { addMonths, subMonths, startOfToday } from 'date-fns';
 import { motion } from 'framer-motion';
@@ -13,9 +12,15 @@ interface CalendarProps {
   onDateClick: (date: Date) => void;
   userName?: string;
   onMonthChange?: (month: Date) => void;
+  calendarDays?: CalendarDay[];
 }
 
-const Calendar: React.FC<CalendarProps> = ({ onDateClick, userName, onMonthChange }) => {
+const Calendar: React.FC<CalendarProps> = ({ 
+  onDateClick, 
+  userName, 
+  onMonthChange,
+  calendarDays = []
+}) => {
   const [currentMonth, setCurrentMonth] = useState<Date>(startOfToday());
   const [slideDirection, setSlideDirection] = useState<'left' | 'right'>('left');
   const { animationsEnabled, getAnimationDuration } = useAnimations();
@@ -97,6 +102,7 @@ const Calendar: React.FC<CalendarProps> = ({ onDateClick, userName, onMonthChang
         <CalendarGrid 
           currentMonth={currentMonth}
           onDateClick={onDateClick}
+          calendarDays={calendarDays}
         />
       </motion.div>
     </div>
